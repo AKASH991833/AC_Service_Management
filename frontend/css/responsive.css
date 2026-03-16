@@ -1,0 +1,550 @@
+/* ========================================
+   ANSH AIR COOL - RESPONSIVE STYLES
+   Mobile-first responsive breakpoints
+   Fully responsive for all devices
+======================================== */
+
+/* ========================================
+   LARGE DESKTOP (1400px+)
+======================================== */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+    }
+    
+    .section-title {
+        font-size: 3rem;
+    }
+}
+
+/* ========================================
+   DESKTOP (992px - 1399px)
+======================================== */
+@media (min-width: 992px) and (max-width: 1399px) {
+    .hero-title {
+        font-size: 3.5rem;
+    }
+}
+
+/* ========================================
+   TABLET (768px - 991px)
+======================================== */
+@media (max-width: 991px) {
+    /* Hero Section */
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    /* Section Titles */
+    .section-title {
+        font-size: 2.2rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+    }
+    
+    /* Navbar */
+    .navbar-custom {
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Cards */
+    .glass-card {
+        padding: 1.5rem;
+    }
+    
+    /* Service Cards */
+    .service-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Product Cards */
+    .product-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Stats */
+    .stat-item {
+        padding: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+    
+    /* Contact Section */
+    .contact-form {
+        padding: 1.5rem;
+    }
+    
+    .contact-info {
+        padding: 1.5rem;
+    }
+    
+    /* Features */
+    .service-features {
+        gap: 1rem;
+    }
+    
+    .product-features {
+        gap: 1rem;
+    }
+    
+    /* Hide cursor trail on tablet */
+    #cursor-trail {
+        display: none;
+    }
+}
+
+/* ========================================
+   MOBILE LARGE (576px - 767px)
+======================================== */
+@media (max-width: 767px) {
+    /* Typography */
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    /* Buttons */
+    .btn-lg {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+    }
+    
+    /* Hero */
+    .hero-badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .hero-cta {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .hero-cta .btn {
+        width: 100%;
+    }
+    
+    /* Trust Indicators */
+    .trust-indicators {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Stats */
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+    }
+    
+    /* Testimonials */
+    .testimonial-card {
+        padding: 1.5rem;
+    }
+    
+    /* Contact Form */
+    .form-control {
+        font-size: 0.9rem;
+    }
+    
+    /* Product Cards */
+    .product-specs {
+        flex-wrap: wrap;
+    }
+    
+    .spec-item {
+        font-size: 0.8rem;
+    }
+    
+    /* Price */
+    .price {
+        font-size: 1.5rem;
+    }
+}
+
+/* ========================================
+   MOBILE SMALL (480px and below)
+======================================== */
+@media (max-width: 480px) {
+    /* Typography - Reduce for small screens */
+    .hero-title {
+        font-size: 1.6rem;
+        line-height: 1.3;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    /* Navbar */
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    /* Hero */
+    .hero-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .trust-item span {
+        font-size: 0.75rem;
+    }
+    
+    /* Cards */
+    .glass-card {
+        padding: 1rem;
+        border-radius: var(--radius-md);
+    }
+    
+    /* Service Cards */
+    .service-content h3 {
+        font-size: 1.2rem;
+    }
+    
+    .service-price {
+        font-size: 1.2rem;
+    }
+    
+    .service-features-list li {
+        font-size: 0.85rem;
+    }
+    
+    /* Product Cards */
+    .product-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .product-description {
+        font-size: 0.85rem;
+    }
+    
+    .product-features-list li {
+        font-size: 0.8rem;
+    }
+    
+    /* Stats */
+    .stat-item {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    
+    /* Testimonials */
+    .testimonial-card {
+        padding: 1rem;
+    }
+    
+    .testimonial-text {
+        font-size: 0.9rem;
+    }
+    
+    .testimonial-author {
+        font-size: 0.85rem;
+    }
+    
+    /* Contact */
+    .contact-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .contact-icon {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-lg {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    /* WhatsApp Float */
+    .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        font-size: 1.8rem;
+    }
+    
+    /* Animations - Reduce for performance */
+    .animated-bg {
+        display: none;
+    }
+    
+    #cursor-trail {
+        display: none;
+    }
+    
+    #particles-container {
+        display: none;
+    }
+}
+
+/* ========================================
+   EXTRA SMALL MOBILE (360px and below)
+======================================== */
+@media (max-width: 360px) {
+    .hero-title {
+        font-size: 1.4rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.75rem;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .glass-card {
+        padding: 0.75rem;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+======================================== */
+@media print {
+    /* Hide non-essential elements */
+    .navbar,
+    .whatsapp-float,
+    .scroll-to-top,
+    #loading-screen,
+    #cursor-trail,
+    #particles-container,
+    .animated-bg {
+        display: none !important;
+    }
+    
+    /* Reset background colors */
+    body {
+        background: #ffffff;
+        color: #000000;
+    }
+    
+    .glass-card {
+        background: #f5f5f5;
+        border: 1px solid #dddddd;
+        box-shadow: none;
+    }
+    
+    /* Ensure text is readable */
+    h1, h2, h3, h4, h5, h6 {
+        color: #000000;
+    }
+    
+    a {
+        color: #000000;
+        text-decoration: underline;
+    }
+}
+
+/* ========================================
+   REDUCED MOTION
+======================================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .animated-bg,
+    #cursor-trail,
+    #particles-container {
+        display: none;
+    }
+}
+
+/* ========================================
+   HIGH CONTRAST MODE
+======================================== */
+@media (prefers-contrast: high) {
+    .glass-card {
+        border: 2px solid #ffffff;
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .btn-primary-glow {
+        border: 2px solid #ffffff;
+    }
+    
+    .nav-link {
+        border-bottom: 2px solid transparent;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+        border-bottom-color: #ffffff;
+    }
+}
+
+/* ========================================
+   CRITICAL MOBILE FIXES
+   Essential for all mobile devices
+======================================== */
+
+/* Fix for mobile viewport issues */
+@supports (-webkit-touch-callout: none) {
+    .hero-title {
+        -webkit-text-size-adjust: 100%;
+    }
+}
+
+/* Prevent horizontal scroll on mobile */
+body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+/* Fix button tap highlight on mobile */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove tap highlight on mobile */
+    button, a {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Make buttons easier to tap */
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Larger touch targets for mobile */
+    .service-btn,
+    .product-btn,
+    .tab-btn {
+        min-height: 48px;
+        padding: 12px 20px;
+    }
+    
+    /* Disable hover effects on touch devices */
+    .glass-card:hover {
+        transform: none;
+    }
+    
+    .btn-primary-glow:hover {
+        transform: none;
+    }
+}
+
+/* Fix for iOS Safari */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+    .glass-card {
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .navbar-custom {
+        -webkit-backdrop-filter: blur(20px);
+    }
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media screen and (max-width: 768px) {
+    input, textarea, select {
+        font-size: 16px !important;
+    }
+}
+
+/* Mobile navbar fixes */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background: rgba(12, 14, 29, 0.98);
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 10px;
+        backdrop-filter: blur(20px);
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 12px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .navbar-nav .nav-link:last-child {
+        border-bottom: none;
+    }
+}
+
+/* WhatsApp button mobile fix */
+@media (max-width: 768px) {
+    .whatsapp-float {
+        width: 60px;
+        height: 60px;
+        bottom: 20px;
+        right: 20px;
+        font-size: 1.8rem;
+        /* Mobile pe hamesha visible rahega */
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}
+
+/* Loading screen mobile fix */
+@media (max-width: 768px) {
+    #loading-screen {
+        position: fixed;
+        inset: 0;
+    }
+    
+    .loader-logo {
+        font-size: 3rem;
+    }
+    
+    .loader-text {
+        font-size: 1.2rem;
+    }
+}

@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ansh Air Cool</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Animation CSS - Required for all animations -->
+    <link rel="stylesheet" href="../css/animations.css">
+    
+    <!-- Custom Admin CSS -->
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/enhanced-responsive.css">
+    <style>
+        /* Mobile Responsive Optimizations */
+        @media (max-width: 768px) {
+            .section-editor {
+                padding: 15px !important;
+                margin-bottom: 15px !important;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 10px;
+            }
+
+            .section-header .btn {
+                width: 100%;
+            }
+
+            .editor-field {
+                margin-bottom: 15px !important;
+            }
+
+            .editor-field input,
+            .editor-field textarea,
+            .editor-field select {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .feature-item,
+            .testimonial-item,
+            .service-item,
+            .product-item {
+                padding: 12px !important;
+                margin-bottom: 12px !important;
+            }
+
+            .item-actions {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .btn-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            /* Stats Grid - 2 columns on mobile */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+            }
+
+            .stat-card {
+                padding: 12px !important;
+            }
+
+            .stat-icon {
+                font-size: 1.5rem !important;
+            }
+
+            .stat-details h3 {
+                font-size: 1.4rem !important;
+            }
+
+            .stat-details p {
+                font-size: 0.75rem !important;
+            }
+
+            /* Tables - Better scroll */
+            .table-responsive {
+                border-radius: 8px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Cards */
+            .glass-card {
+                padding: 15px !important;
+                margin-bottom: 15px !important;
+            }
+
+            /* Modal adjustments */
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+
+            .modal-content {
+                padding: 15px;
+            }
+
+            /* Login page */
+            .admin-login-container {
+                padding: 15px;
+            }
+
+            .login-card {
+                padding: 20px !important;
+            }
+
+            .brand-logo {
+                font-size: 3rem !important;
+            }
+
+            /* Preview button - reposition on mobile */
+            .preview-toggle {
+                bottom: 80px !important;
+                right: 15px !important;
+            }
+
+            .preview-close {
+                top: 10px !important;
+                right: 10px !important;
+                width: 40px !important;
+                height: 40px !important;
+            }
+        }
+
+        /* Extra small mobile */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-title {
+                font-size: 1.8rem !important;
+            }
+
+            .section-title {
+                font-size: 1.5rem !important;
+            }
+
+            .btn {
+                padding: 8px 12px !important;
+                font-size: 13px !important;
+            }
+
+            .form-control {
+                font-size: 13px !important;
+                padding: 8px 10px !important;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .sidebar {
+                max-height: 100vh;
+                overflow-y: auto;
+            }
+
+            .main-content {
+                padding: 10px;
+            }
+
+            section.py-5 {
+                padding-top: 30px !important;
+                padding-bottom: 30px !important;
+            }
+        }
+
+        /* Tablet */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 220px !important;
+            }
+
+            .main-content {
+                margin-left: 220px !important;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            button,
+            .btn,
+            a,
+            input,
+            select {
+                min-height: 44px !important;
+                min-width: 44px !important;
+            }
+
+            .sidebar-nav .nav-item {
+                min-height: 48px;
+            }
+        }
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 129, 255, 0.2);
+        }
+        
+        .section-title {
+            color: var(--primary-glow);
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .editor-field {
+            margin-bottom: 20px;
+        }
+        
+        .editor-field label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .editor-field input,
+        .editor-field textarea,
+        .editor-field select {
+            background: rgba(12, 14, 29, 0.8);
+            border: 1px solid rgba(255, 129, 255, 0.2);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 12px 15px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .editor-field input:focus,
+        .editor-field textarea:focus,
+        .editor-field select:focus {
+            outline: none;
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(255, 129, 255, 0.3);
+        }
+        
+        .feature-item,
+        .testimonial-item,
+        .service-item,
+        .product-item {
+            background: rgba(12, 14, 29, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 129, 255, 0.1);
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-icon {
+            width: 35px;
+            height: 35px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+        
+        .preview-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            overflow-y: auto;
+        }
+        
+        .preview-modal.active {
+            display: block;
+        }
+        
+        .preview-content {
+            background: var(--primary-bg);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .preview-close {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10000;
+        }
+        
+        .repeater-item {
+            background: rgba(12, 14, 29, 0.5);
+            border: 1px solid rgba(255, 129, 255, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .repeater-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .sortable-handle {
+            cursor: move;
+            color: var(--text-muted);
+            margin-right: 10px;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: rgba(81, 250, 170, 0.2);
+            color: var(--success-accent);
+        }
+        
+        .status-inactive {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--danger-color);
+        }
+        
+        .image-upload-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid rgba(255, 129, 255, 0.2);
+        }
+        
+        .add-item-btn {
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed rgba(255, 129, 255, 0.3);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-item-btn:hover {
+            border-color: var(--primary-glow);
+            color: var(--primary-glow);
+            background: rgba(255, 129, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="admin-loading-screen">
+        <div class="admin-loader-container">
+            <div class="admin-loader-logo">
+                <i class="fas fa-snowflake"></i>
+            </div>
+            <div class="admin-loader-text">Ansh Air Cool</div>
+            <div class="admin-loader-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Cursor Trail Effect -->
+    <div id="cursor-trail" class="admin-cursor-trail"></div>
+
+    <!-- Particle Container -->
+    <div id="particles-container" class="admin-particles-container"></div>
+
+    <!-- Animated Background Blobs -->
+    <div class="admin-animated-bg">
+        <div class="admin-blob admin-blob-1"></div>
+        <div class="admin-blob admin-blob-2"></div>
+        <div class="admin-blob admin-blob-3"></div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="admin-login-container">
+        <div class="login-card glass-card">
+            <div class="login-header text-center mb-4">
+                <div class="brand-logo">
+                    <i class="fas fa-snowflake"></i>
+                </div>
+                <h2 class="text-white">Admin Login</h2>
+                <p class="text-muted">Website Management Dashboard</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label text-white-50">
+                        <i class="fas fa-user me-2"></i>Username
+                    </label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter username" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-white-50">
+                        <i class="fas fa-lock me-2"></i>Password
+                    </label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary-glow w-100">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+
+                <div id="loginError" class="alert alert-danger mt-3 d-none">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span>Invalid username or password</span>
+                </div>
+            </form>
+
+            <div class="login-footer text-center mt-4">
+                <p class="text-muted mb-0">© 2026 Ansh Air Cool. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard (Hidden until login) -->
+    <div id="dashboard-page" class="admin-dashboard d-none">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <i class="fas fa-snowflake"></i>
+                </div>
+                <h4>Ansh Air Cool</h4>
+                <p>Website Editor</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="hero">
+                    <i class="fas fa-home"></i>
+                    <span>Hero Section</span>
+                </a>
+                <a href="#" class="nav-item" data-section="services">
+                    <i class="fas fa-concierge-bell"></i>
+                    <span>Services</span>
+                </a>
+                <a href="#" class="nav-item" data-section="products">
+                    <i class="fas fa-air-freshener"></i>
+                    <span>Products (Buy & Rent)</span>
+                </a>
+                <a href="#" class="nav-item" data-section="testimonials">
+                    <i class="fas fa-star"></i>
+                    <span>Testimonials</span>
+                </a>
+                <a href="#" class="nav-item" data-section="features">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Features</span>
+                </a>
+                <a href="#" class="nav-item" data-section="stats">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Stats</span>
+                </a>
+                <a href="#" class="nav-item" data-section="contact">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+                <a href="#" class="nav-item" data-section="footer">
+                    <i class="fas fa-bars"></i>
+                    <span>Footer</span>
+                </a>
+                <a href="#" class="nav-item" data-section="justdial">
+                    <i class="fas fa-badge-check"></i>
+                    <span>JustDial Badge</span>
+                </a>
+                <a href="#" class="nav-item" data-section="admin-profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Admin Profile</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Site Settings</span>
+                </a>
+                <a href="#" class="nav-item" data-section="messages">
+                    <i class="fas fa-inbox"></i>
+                    <span>Messages</span>
+                    <span class="badge" id="messagesBadge">0</span>
+                </a>
+                <a href="#" class="nav-item" data-section="service-requests">
+                    <i class="fas fa-tools"></i>
+                    <span>Service Requests</span>
+                    <span class="badge" id="requestsBadge">0</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+                <div class="top-bar-right">
+                    <button class="btn btn-preview me-3" id="previewBtn">
+                        <i class="fas fa-eye me-2"></i>Preview Website
+                    </button>
+                    <div class="admin-profile">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <span class="profile-name" id="adminName">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Dashboard Overview -->
+                <div id="dashboard-section" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card stat-primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="totalMessages">0</h3>
+                                <p>Total Messages</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card stat-success">
+                            <div class="stat-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="totalRequests">0</h3>
+                                <p>Service Requests</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card stat-warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="pendingRequests">0</h3>
+                                <p>Pending</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card stat-info">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 id="completedRequests">0</h3>
+                                <p>Completed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card mt-4">
+                        <div class="card-header">
+                            <h4><i class="fas fa-info-circle me-2"></i>Quick Actions</h4>
+                        </div>
+                        <div class="p-4">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('hero')">
+                                        <i class="fas fa-edit me-2"></i>Edit Hero
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('services')">
+                                        <i class="fas fa-plus me-2"></i>Add Service
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('products')">
+                                        <i class="fas fa-plus me-2"></i>Add Product
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('testimonials')">
+                                        <i class="fas fa-star me-2"></i>Add Review
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Section Editor -->
+                <div id="hero-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-home me-2"></i>Hero Section</h3>
+                            <button class="btn btn-success-glow btn-sm" onclick="saveHeroSection()">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Main Title</label>
+                            <input type="text" id="heroTitle" placeholder="Enter hero title">
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Subtitle</label>
+                            <textarea id="heroSubtitle" rows="3" placeholder="Enter hero subtitle"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>CTA Button Text</label>
+                                    <input type="text" id="heroCtaText" placeholder="e.g., Book Now">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>CTA Phone Number</label>
+                                    <input type="text" id="heroCtaPhone" placeholder="e.g., +91 9819104977">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Background Image URL</label>
+                            <input type="text" id="heroBgImage" placeholder="Enter image URL or upload">
+                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="uploadImage('heroBgImage')">
+                                <i class="fas fa-upload me-2"></i>Upload Image
+                            </button>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Show Video Background</label>
+                                    <select id="heroShowVideo">
+                                        <option value="false">No</option>
+                                        <option value="true">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Video URL</label>
+                                    <input type="text" id="heroVideoUrl" placeholder="Enter video URL">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services Section Editor -->
+                <div id="services-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-concierge-bell me-2"></i>Services Management</h3>
+                            <button class="btn btn-primary-glow btn-sm" onclick="addNewService()">
+                                <i class="fas fa-plus me-2"></i>Add Service
+                            </button>
+                        </div>
+                        
+                        <div id="servicesList">
+                            <!-- Services will be loaded here -->
+                        </div>
+                        
+                        <button class="add-item-btn" onclick="addNewService()">
+                            <i class="fas fa-plus me-2"></i>Add New Service
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Section Editor -->
+                <div id="products-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-air-freshener me-2"></i>Products Management (Buy & Rent)</h3>
+                            <div>
+                                <select id="productTypeFilter" class="form-select d-inline-block w-auto me-2" onchange="loadProducts()">
+                                    <option value="all">All</option>
+                                    <option value="buy">Buy (Sale)</option>
+                                    <option value="rent">Rent</option>
+                                </select>
+                                <button class="btn btn-primary-glow btn-sm" onclick="addNewProduct()">
+                                    <i class="fas fa-plus me-2"></i>Add Product
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="productsList">
+                            <!-- Products will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonials Section Editor -->
+                <div id="testimonials-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-star me-2"></i>Testimonials Management</h3>
+                            <button class="btn btn-primary-glow btn-sm" onclick="addNewTestimonial()">
+                                <i class="fas fa-plus me-2"></i>Add Testimonial
+                            </button>
+                        </div>
+                        
+                        <div id="testimonialsList">
+                            <!-- Testimonials will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Section Editor -->
+                <div id="features-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-check-circle me-2"></i>Features Section</h3>
+                            <button class="btn btn-success-glow btn-sm" onclick="saveFeaturesSection()">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Section Title</label>
+                            <input type="text" id="featuresTitle" placeholder="Enter section title">
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Section Subtitle</label>
+                            <textarea id="featuresSubtitle" rows="2" placeholder="Enter section subtitle"></textarea>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Features List</label>
+                            <div id="featuresList">
+                                <!-- Features will be loaded here -->
+                            </div>
+                            <button class="add-item-btn mt-3" onclick="addNewFeature()">
+                                <i class="fas fa-plus me-2"></i>Add New Feature
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Section Editor -->
+                <div id="stats-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-chart-line me-2"></i>Stats Section</h3>
+                            <button class="btn btn-success-glow btn-sm" onclick="saveStatsSection()">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Customers Count</label>
+                                    <input type="text" id="statsCustomers" placeholder="e.g., 1000+">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Customers Label</label>
+                                    <input type="text" id="statsCustomersLabel" placeholder="e.g., Happy Customers">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Services Count</label>
+                                    <input type="text" id="statsServices" placeholder="e.g., 5000+">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Services Label</label>
+                                    <input type="text" id="statsServicesLabel" placeholder="e.g., Services Completed">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Experience Count</label>
+                                    <input type="text" id="statsExperience" placeholder="e.g., 10+">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Experience Label</label>
+                                    <input type="text" id="statsExperienceLabel" placeholder="e.g., Years Experience">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Technicians Count</label>
+                                    <input type="text" id="statsTechnicians" placeholder="e.g., 50+">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="editor-field">
+                                    <label>Technicians Label</label>
+                                    <input type="text" id="statsTechniciansLabel" placeholder="e.g., Expert Technicians">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Section Editor -->
+                <div id="contact-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-envelope me-2"></i>Contact Section</h3>
+                            <button class="btn btn-success-glow btn-sm" onclick="saveContactSection()">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Phone Number</label>
+                                    <input type="text" id="contactPhone" placeholder="e.g., +91 9819104977">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>WhatsApp Number</label>
+                                    <input type="text" id="contactWhatsapp" placeholder="e.g., +91 9819104977">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Email</label>
+                                    <input type="email" id="contactEmail" placeholder="e.g., anshaircool@gmail.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Address</label>
+                                    <input type="text" id="contactAddress" placeholder="e.g., Mumbai, Maharashtra">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Business Hours</label>
+                            <textarea id="contactHours" rows="2" placeholder="e.g., Mon - Sat: 9 AM - 8 PM | Sunday: 10 AM - 6 PM"></textarea>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Google Maps Embed Code</label>
+                            <textarea id="contactMaps" rows="3" placeholder="Paste Google Maps iframe embed code"></textarea>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Show Contact Form</label>
+                            <select id="contactShowForm">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Section Editor -->
+                <div id="footer-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-bars me-2"></i>Footer Section</h3>
+                            <button class="btn btn-success-glow btn-sm" onclick="saveFooterSection()">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Company Name</label>
+                                    <input type="text" id="footerCompanyName" placeholder="e.g., Ansh Air Cool">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Tagline</label>
+                                    <input type="text" id="footerTagline" placeholder="e.g., Professional AC Services">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Copyright Text</label>
+                            <input type="text" id="footerCopyright" placeholder="e.g., © 2026 Ansh Air Cool. All rights reserved.">
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Social Media Links</label>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <input type="text" id="footerFacebook" placeholder="Facebook URL" class="mb-2">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" id="footerInstagram" placeholder="Instagram URL" class="mb-2">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" id="footerTwitter" placeholder="Twitter URL" class="mb-2">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" id="footerYoutube" placeholder="YouTube URL" class="mb-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JustDial Badge Section -->
+                <div id="justdial-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-badge-check me-2"></i>JustDial Trust Badge</h3>
+                            <button class="btn btn-success-glow btn-sm" onclick="saveJustdialSection()">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Show JustDial Badge</label>
+                            <select id="justdialShow">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="editor-field">
+                                    <label>Rating</label>
+                                    <input type="text" id="justdialRating" placeholder="e.g., 4.8">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="editor-field">
+                                    <label>Review Count</label>
+                                    <input type="text" id="justdialReviews" placeholder="e.g., 500+">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="editor-field">
+                                    <label>Verified Text</label>
+                                    <input type="text" id="justdialVerified" placeholder="e.g., Verified by JustDial">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Badge Image URL</label>
+                            <input type="text" id="justdialBadgeImage" placeholder="Enter badge image URL">
+                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="uploadImage('justdialBadgeImage')">
+                                <i class="fas fa-upload me-2"></i>Upload Badge Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Profile & Password -->
+                <div id="admin-profile-section" class="content-section">
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-user-circle me-2"></i>Admin Profile & Security</h4>
+                        </div>
+                        <div class="p-4">
+                            <!-- Profile Information -->
+                            <h5 class="text-white mb-3">
+                                <i class="fas fa-user me-2"></i>Profile Information
+                            </h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label text-white-50">Username (Cannot be changed)</label>
+                                    <input type="text" id="profileUsername" class="form-control" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-white-50">Full Name</label>
+                                    <input type="text" id="profileFullName" class="form-control" placeholder="Enter full name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-white-50">Email Address</label>
+                                    <input type="email" id="profileEmail" class="form-control" placeholder="Enter email">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-white-50">Phone Number</label>
+                                    <input type="tel" id="profilePhone" class="form-control" placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label text-white-50">Last Login</label>
+                                <div id="profileLastLogin" class="text-white-50">-</div>
+                            </div>
+                            
+                            <button class="btn btn-primary-glow" onclick="updateAdminProfile()">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                            
+                            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+                            
+                            <!-- Change Password -->
+                            <h5 class="text-white mb-3">
+                                <i class="fas fa-lock me-2"></i>Change Password
+                            </h5>
+                            <p class="text-muted mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Click the button below to change your password securely
+                            </p>
+                            <button class="btn btn-warning-glow" onclick="openChangePasswordModal()">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site Settings -->
+                <div id="settings-section" class="content-section">
+                    <div class="section-editor">
+                        <div class="section-header">
+                            <h3 class="section-title"><i class="fas fa-cog me-2"></i>Site Settings</h3>
+                            <button class="btn btn-success-glow btn-sm" onclick="saveSiteSettings()">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Site Title</label>
+                                    <input type="text" id="siteTitle" placeholder="e.g., Ansh Air Cool - Premium AC Services">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>WhatsApp Number</label>
+                                    <input type="text" id="siteWhatsapp" placeholder="e.g., +91 9819104977">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Site Description (SEO)</label>
+                            <textarea id="siteDescription" rows="3" placeholder="Meta description for search engines"></textarea>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Site Keywords (SEO)</label>
+                            <textarea id="siteKeywords" rows="2" placeholder="Comma separated keywords"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Logo URL</label>
+                                    <input type="text" id="siteLogo" placeholder="Enter logo URL">
+                                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="uploadImage('siteLogo')">
+                                        <i class="fas fa-upload me-2"></i>Upload Logo
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="editor-field">
+                                    <label>Favicon URL</label>
+                                    <input type="text" id="siteFavicon" placeholder="Enter favicon URL">
+                                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="uploadImage('siteFavicon')">
+                                        <i class="fas fa-upload me-2"></i>Upload Favicon
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Google Analytics Code</label>
+                            <textarea id="siteAnalytics" rows="3" placeholder="Paste Google Analytics tracking code"></textarea>
+                        </div>
+                        
+                        <div class="editor-field">
+                            <label>Enable WhatsApp Button</label>
+                            <select id="siteEnableWhatsapp">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Section -->
+                <div id="messages-section" class="content-section">
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-inbox me-2"></i>Contact Messages</h4>
+                            <button class="btn btn-primary-glow btn-sm" onclick="loadMessages()">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Service</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="messagesTable">
+                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Requests Section -->
+                <div id="service-requests-section" class="content-section">
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-tools me-2"></i>Service Requests</h4>
+                            <button class="btn btn-primary-glow btn-sm" onclick="loadServiceRequests()">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Customer</th>
+                                        <th>Phone</th>
+                                        <th>Service</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requestsTable">
+                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="preview-modal">
+        <button class="preview-close" onclick="closePreview()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="preview-content">
+            <iframe src="../index.html" style="width: 100%; height: 100vh; border: none;"></iframe>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--secondary-gradient); border: 1px solid var(--border-color);">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h5 class="modal-title text-white" id="changePasswordModalLabel">
+                        <i class="fas fa-key me-2"></i>Change Password
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-white-50">
+                            <i class="fas fa-lock me-2"></i>Current Password
+                        </label>
+                        <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-white-50">
+                            <i class="fas fa-key me-2"></i>New Password
+                        </label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password" required>
+                        <div class="form-text text-white-50">Minimum 6 characters</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-white-50">
+                            <i class="fas fa-check-circle me-2"></i>Confirm New Password
+                        </label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password" required>
+                    </div>
+                    
+                    <div class="alert alert-info" style="background: rgba(0, 245, 255, 0.1); border: 1px solid var(--cyan-glow); color: var(--cyan-glow);">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <strong>Security Tips:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Use at least 6 characters</li>
+                            <li>Mix of letters, numbers & symbols</li>
+                            <li>Don't use personal information</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary-glow" onclick="changeAdminPassword()">
+                        <i class="fas fa-save me-2"></i>Change Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Admin Dashboard JavaScript - Load in order -->
+    <script src="../js/settings.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/admin-management.js"></script>
+    
+    <!-- Dashboard-specific inline scripts (Website Editor) -->
+    <script>
+        // Use ADMIN_API configuration from admin-management.js
+        const API_BASE = ADMIN_API?.BASE_URL || 'http://localhost:5000/api';
+        const ADMIN_API_BASE = ADMIN_API?.BASE_URL + '/api/admin-full' || 'http://localhost:5000/api/admin-full';
+
+        // State - Don't redeclare, use from admin-management.js
+        // let currentAdmin, services, products, testimonials, features; // Already in admin-management.js
+
+        // Dashboard initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Dashboard loaded');
+            setupDashboardEventListeners();
+        });
+
+        // Setup Event Listeners for Dashboard
+        function setupDashboardEventListeners() {
+            // Login form - uses handleLogin from admin-management.js if available
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleDashboardLogin);
+            }
+
+            // Logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleDashboardLogout);
+            }
+
+            // Navigation
+            document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = item.dataset.section;
+                    navigateToSection(section);
+                });
+            });
+
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    document.querySelector('.sidebar')?.classList.toggle('collapsed');
+                });
+            }
+
+            // Preview button
+            const previewBtn = document.getElementById('previewBtn');
+            if (previewBtn) {
+                previewBtn.addEventListener('click', openPreview);
+            }
+        }
+
+        // Handle Login (Dashboard-specific)
+        async function handleDashboardLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginError = document.getElementById('loginError');
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-API-KEY': ADMIN_API?.API_KEY || '' },
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentAdmin = data.data.admin;
+                    if (loginError) loginError.classList.add('d-none');
+                    showDashboard();
+                } else {
+                    if (loginError) {
+                        loginError.classList.remove('d-none');
+                        loginError.querySelector('span').textContent = data.message || 'Invalid credentials';
+                    }
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                if (loginError) {
+                    loginError.classList.remove('d-none');
+                    loginError.querySelector('span').textContent = 'Connection failed. Ensure backend is running.';
+                }
+            }
+        }
+
+        // Handle Logout (Dashboard-specific)
+        async function handleDashboardLogout() {
+            try {
+                await fetch(`${API_BASE}/admin/logout`, { method: 'POST', credentials: 'include' });
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+            
+            currentAdmin = null;
+            showLogin();
+        }
+        
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('loading-screen').classList.add('d-none');
+            document.getElementById('login-page').classList.add('d-none');
+            document.getElementById('dashboard-page').classList.remove('d-none');
+            
+            document.getElementById('adminName').textContent = currentAdmin?.full_name || 'Admin';
+            
+            loadDashboardStats();
+            
+            // Show welcome notification
+            showNotification('Welcome back, ' + (currentAdmin?.full_name || 'Admin') + '!', 'success');
+        }
+        
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                min-width: 300px;
+                animation: slideInRight 0.3s ease;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 150);
+            }, 3000);
+        }
+        
+        // Show Login
+        function showLogin() {
+            document.getElementById('loading-screen').classList.add('d-none');
+            document.getElementById('login-page').classList.remove('d-none');
+            document.getElementById('dashboard-page').classList.add('d-none');
+        }
+        
+        // Navigate to Section
+        function navigateToSection(section) {
+            // Update active nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === section) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'hero': 'Hero Section',
+                'services': 'Services',
+                'products': 'Products',
+                'testimonials': 'Testimonials',
+                'features': 'Features',
+                'stats': 'Stats',
+                'contact': 'Contact',
+                'footer': 'Footer',
+                'justdial': 'JustDial Badge',
+                'settings': 'Site Settings',
+                'messages': 'Messages',
+                'service-requests': 'Service Requests'
+            };
+            document.getElementById('pageTitle').textContent = titles[section] || section;
+            
+            // Show section content
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById(`${section}-section`).classList.add('active');
+            
+            // Load section data
+            loadSectionData(section);
+            
+            // Show notification
+            showNotification(`Loaded ${titles[section]}`, 'info');
+        }
+        
+        // Load All Sections Data
+        function loadAllSections() {
+            loadHeroSection();
+            loadServices();
+            loadProducts();
+            loadTestimonials();
+            loadFeatures();
+            loadStats();
+            loadContact();
+            loadFooter();
+            loadJustdial();
+            loadSiteSettings();
+            loadMessages();
+            loadServiceRequests();
+        }
+        
+        // Load Section Data
+        function loadSectionData(section) {
+            const loaders = {
+                'hero': loadHeroSection,
+                'services': loadServices,
+                'products': loadProducts,
+                'testimonials': loadTestimonials,
+                'features': loadFeatures,
+                'stats': loadStats,
+                'contact': loadContact,
+                'footer': loadFooter,
+                'justdial': loadJustdial,
+                'settings': loadSiteSettings,
+                'messages': loadMessages,
+                'service-requests': loadServiceRequests
+            };
+            
+            if (loaders[section]) {
+                loaders[section]();
+            }
+        }
+        
+        // Dashboard Stats
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/stats`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalMessages').textContent = data.data.totalMessages;
+                    document.getElementById('totalRequests').textContent = data.data.totalRequests;
+                    document.getElementById('pendingRequests').textContent = data.data.pendingRequests;
+                    document.getElementById('completedRequests').textContent = data.data.completedRequests;
+                    document.getElementById('messagesBadge').textContent = data.data.unreadMessages;
+                    document.getElementById('requestsBadge').textContent = data.data.pendingRequests;
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+        
+        // ==================== HERO SECTION ====================
+        async function loadHeroSection() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/hero`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('heroTitle').value = data.data.title || '';
+                    document.getElementById('heroSubtitle').value = data.data.subtitle || '';
+                    document.getElementById('heroCtaText').value = data.data.cta_text || '';
+                    document.getElementById('heroCtaPhone').value = data.data.cta_phone || '';
+                    document.getElementById('heroBgImage').value = data.data.background_image || '';
+                    document.getElementById('heroShowVideo').value = data.data.show_video || 'false';
+                    document.getElementById('heroVideoUrl').value = data.data.video_url || '';
+                }
+            } catch (error) {
+                console.error('Failed to load hero section:', error);
+            }
+        }
+        
+        async function saveHeroSection() {
+            try {
+                const data = {
+                    title: document.getElementById('heroTitle').value,
+                    subtitle: document.getElementById('heroSubtitle').value,
+                    cta_text: document.getElementById('heroCtaText').value,
+                    cta_phone: document.getElementById('heroCtaPhone').value,
+                    background_image: document.getElementById('heroBgImage').value,
+                    show_video: document.getElementById('heroShowVideo').value,
+                    video_url: document.getElementById('heroVideoUrl').value
+                };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/hero`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Hero section saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save hero section:', error);
+                showNotification('Failed to save hero section', 'error');
+            }
+        }
+        
+        // ==================== SERVICES SECTION ====================
+        async function loadServices() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/services`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    services = data.data;
+                    renderServices();
+                }
+            } catch (error) {
+                console.error('Failed to load services:', error);
+            }
+        }
+        
+        function renderServices() {
+            const container = document.getElementById('servicesList');
+            
+            if (services.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center py-4">No services yet. Click "Add Service" to create one.</p>';
+                return;
+            }
+            
+            container.innerHTML = services.map(service => `
+                <div class="service-item">
+                    <div class="repeater-header">
+                        <h5>${service.service_name}</h5>
+                        <span class="status-badge ${service.is_active ? 'status-active' : 'status-inactive'}">
+                            ${service.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Service Name</label>
+                                <input type="text" value="${service.service_name}" onchange="updateService(${service.id}, 'service_name', this.value)">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Starting Price</label>
+                                <input type="text" value="${service.starting_price}" onchange="updateService(${service.id}, 'starting_price', this.value)">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Duration</label>
+                                <input type="text" value="${service.duration || ''}" onchange="updateService(${service.id}, 'duration', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="editor-field">
+                        <label>Description</label>
+                        <textarea onchange="updateService(${service.id}, 'description', this.value)">${service.description || ''}</textarea>
+                    </div>
+                    <div class="editor-field">
+                        <label>Icon Class (FontAwesome)</label>
+                        <input type="text" value="${service.icon_class || 'fas fa-tools'}" onchange="updateService(${service.id}, 'icon_class', this.value)">
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-sm ${service.is_active ? 'btn-danger' : 'btn-success'}" onclick="toggleServiceStatus(${service.id})">
+                            ${service.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteService(${service.id})">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function addNewService() {
+            const name = prompt('Enter service name:');
+            if (!name) return;
+            
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/services`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        service_name: name,
+                        service_slug: name.toLowerCase().replace(/ /g, '-'),
+                        starting_price: '₹0',
+                        is_active: true
+                    }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    services.push(data.data);
+                    renderServices();
+                    showNotification('Service added successfully!', 'success');
+                } else {
+                    showNotification('Failed to add service: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to add service:', error);
+                showNotification('Failed to add service', 'error');
+            }
+        }
+        
+        async function updateService(id, field, value) {
+            try {
+                const service = services.find(s => s.id === id);
+                const data = { [field]: value };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/services/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    service[field] = value;
+                }
+            } catch (error) {
+                console.error('Failed to update service:', error);
+            }
+        }
+        
+        async function toggleServiceStatus(id) {
+            const service = services.find(s => s.id === id);
+            await updateService(id, 'is_active', !service.is_active);
+            loadServices();
+        }
+        
+        async function deleteService(id) {
+            if (!confirm('Are you sure you want to delete this service?')) return;
+            
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/services/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    services = services.filter(s => s.id !== id);
+                    renderServices();
+                    showNotification('Service deleted successfully!', 'success');
+                } else {
+                    showNotification('Failed to delete: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to delete service:', error);
+                showNotification('Failed to delete service', 'error');
+            }
+        }
+        
+        // ==================== PRODUCTS SECTION ====================
+        async function loadProducts() {
+            try {
+                const type = document.getElementById('productTypeFilter').value;
+                const url = `${ADMIN_API_BASE}/section/products?type=${type}`;
+                
+                const response = await fetch(url, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    products = data.data;
+                    renderProducts();
+                }
+            } catch (error) {
+                console.error('Failed to load products:', error);
+            }
+        }
+        
+        function renderProducts() {
+            const container = document.getElementById('productsList');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center py-4">No products yet. Click "Add Product" to create one.</p>';
+                return;
+            }
+            
+            container.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <div class="repeater-header">
+                        <h5>${product.product_name} (${product.product_type.toUpperCase()})</h5>
+                        <span class="status-badge ${product.is_active ? 'status-active' : 'status-inactive'}">
+                            ${product.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Product Name</label>
+                                <input type="text" value="${product.product_name}" onchange="updateProduct(${product.id}, 'product_name', this.value)">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Brand</label>
+                                <input type="text" value="${product.brand || ''}" onchange="updateProduct(${product.id}, 'brand', this.value)">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Price</label>
+                                <input type="text" value="${product.price}" onchange="updateProduct(${product.id}, 'price', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="editor-field">
+                        <label>Description</label>
+                        <textarea onchange="updateProduct(${product.id}, 'description', this.value)">${product.description || ''}</textarea>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-sm ${product.is_active ? 'btn-danger' : 'btn-success'}" onclick="toggleProductStatus(${product.id})">
+                            ${product.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function addNewProduct() {
+            const name = prompt('Enter product name:');
+            if (!name) return;
+            
+            const type = prompt('Enter product type (buy/rent):', 'buy');
+            if (!type || !['buy', 'rent'].includes(type)) {
+                showNotification('Invalid type. Must be "buy" or "rent"', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_type: type,
+                        product_name: name,
+                        price: '₹0',
+                        is_active: true
+                    }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    products.push(data.data);
+                    renderProducts();
+                    showNotification('Product added successfully!', 'success');
+                } else {
+                    showNotification('Failed to add product: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to add product:', error);
+                showNotification('Failed to add product', 'error');
+            }
+        }
+        
+        async function updateProduct(id, field, value) {
+            try {
+                const product = products.find(p => p.id === id);
+                const data = { [field]: value };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/products/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    product[field] = value;
+                }
+            } catch (error) {
+                console.error('Failed to update product:', error);
+            }
+        }
+        
+        async function toggleProductStatus(id) {
+            const product = products.find(p => p.id === id);
+            await updateProduct(id, 'is_active', !product.is_active);
+            loadProducts();
+        }
+        
+        async function deleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/products/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    products = products.filter(p => p.id !== id);
+                    renderProducts();
+                    showNotification('Product deleted successfully!', 'success');
+                } else {
+                    showNotification('Failed to delete: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to delete product:', error);
+                showNotification('Failed to delete product', 'error');
+            }
+        }
+        
+        // ==================== TESTIMONIALS SECTION ====================
+        async function loadTestimonials() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/testimonials`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    testimonials = data.data;
+                    renderTestimonials();
+                }
+            } catch (error) {
+                console.error('Failed to load testimonials:', error);
+            }
+        }
+        
+        function renderTestimonials() {
+            const container = document.getElementById('testimonialsList');
+            
+            if (testimonials.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center py-4">No testimonials yet. Click "Add Testimonial" to create one.</p>';
+                return;
+            }
+            
+            container.innerHTML = testimonials.map(t => `
+                <div class="testimonial-item">
+                    <div class="repeater-header">
+                        <h5>${t.customer_name} ${t.customer_location ? '(' + t.customer_location + ')' : ''}</h5>
+                        <div>
+                            <span class="text-warning">${'★'.repeat(t.rating)}${'☆'.repeat(5-t.rating)}</span>
+                            <span class="status-badge ${t.is_active ? 'status-active' : 'status-inactive'} ms-2">
+                                ${t.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="editor-field">
+                        <label>Review Text</label>
+                        <textarea onchange="updateTestimonial(${t.id}, 'review_text', this.value)">${t.review_text}</textarea>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-sm ${t.is_active ? 'btn-danger' : 'btn-success'}" onclick="toggleTestimonialStatus(${t.id})">
+                            ${t.is_active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${t.id})">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function addNewTestimonial() {
+            const name = prompt('Enter customer name:');
+            if (!name) return;
+            
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/testimonials`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_name: name,
+                        customer_location: '',
+                        review_text: 'Great service!',
+                        rating: 5,
+                        is_active: true
+                    }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    testimonials.push(data.data);
+                    renderTestimonials();
+                    showNotification('Testimonial added successfully!', 'success');
+                } else {
+                    showNotification('Failed to add testimonial: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to add testimonial:', error);
+                showNotification('Failed to add testimonial', 'error');
+            }
+        }
+        
+        async function updateTestimonial(id, field, value) {
+            try {
+                const testimonial = testimonials.find(t => t.id === id);
+                const data = { [field]: value };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/testimonials/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    testimonial[field] = value;
+                }
+            } catch (error) {
+                console.error('Failed to update testimonial:', error);
+            }
+        }
+        
+        async function toggleTestimonialStatus(id) {
+            const testimonial = testimonials.find(t => t.id === id);
+            await updateTestimonial(id, 'is_active', !testimonial.is_active);
+            loadTestimonials();
+        }
+        
+        async function deleteTestimonial(id) {
+            if (!confirm('Are you sure you want to delete this testimonial?')) return;
+            
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/testimonials/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    testimonials = testimonials.filter(t => t.id !== id);
+                    renderTestimonials();
+                    showNotification('Testimonial deleted successfully!', 'success');
+                } else {
+                    showNotification('Failed to delete: ' + data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to delete testimonial:', error);
+                showNotification('Failed to delete testimonial', 'error');
+            }
+        }
+        
+        // ==================== FEATURES SECTION ====================
+        async function loadFeatures() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/features`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('featuresTitle').value = data.data.title || '';
+                    document.getElementById('featuresSubtitle').value = data.data.subtitle || '';
+                    
+                    try {
+                        features = JSON.parse(data.data.features_list || '[]');
+                    } catch (e) {
+                        features = [];
+                    }
+                    renderFeatures();
+                }
+            } catch (error) {
+                console.error('Failed to load features:', error);
+            }
+        }
+        
+        function renderFeatures() {
+            const container = document.getElementById('featuresList');
+            
+            container.innerHTML = features.map((feature, index) => `
+                <div class="repeater-item">
+                    <div class="repeater-header">
+                        <h6>Feature ${index + 1}</h6>
+                        <button class="btn btn-sm btn-danger" onclick="removeFeature(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Icon Class</label>
+                                <input type="text" value="${feature.icon || 'fas fa-check'}" onchange="updateFeature(${index}, 'icon', this.value)">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Title</label>
+                                <input type="text" value="${feature.title || ''}" onchange="updateFeature(${index}, 'title', this.value)">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="editor-field">
+                                <label>Description</label>
+                                <input type="text" value="${feature.description || ''}" onchange="updateFeature(${index}, 'description', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function addNewFeature() {
+            features.push({
+                icon: 'fas fa-check',
+                title: 'New Feature',
+                description: 'Feature description'
+            });
+            renderFeatures();
+        }
+        
+        function updateFeature(index, field, value) {
+            features[index][field] = value;
+        }
+        
+        function removeFeature(index) {
+            features.splice(index, 1);
+            renderFeatures();
+        }
+        
+        async function saveFeaturesSection() {
+            try {
+                const data = {
+                    title: document.getElementById('featuresTitle').value,
+                    subtitle: document.getElementById('featuresSubtitle').value,
+                    features_list: JSON.stringify(features)
+                };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/features`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Features section saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save features section:', error);
+                showNotification('Failed to save features section', 'error');
+            }
+        }
+        
+        // ==================== STATS SECTION ====================
+        async function loadStats() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/stats`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('statsCustomers').value = data.data.customers_count || '';
+                    document.getElementById('statsCustomersLabel').value = data.data.customers_label || '';
+                    document.getElementById('statsServices').value = data.data.services_count || '';
+                    document.getElementById('statsServicesLabel').value = data.data.services_label || '';
+                    document.getElementById('statsExperience').value = data.data.experience_count || '';
+                    document.getElementById('statsExperienceLabel').value = data.data.experience_label || '';
+                    document.getElementById('statsTechnicians').value = data.data.technicians_count || '';
+                    document.getElementById('statsTechniciansLabel').value = data.data.technicians_label || '';
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+        
+        async function saveStatsSection() {
+            try {
+                const data = {
+                    customers_count: document.getElementById('statsCustomers').value,
+                    customers_label: document.getElementById('statsCustomersLabel').value,
+                    services_count: document.getElementById('statsServices').value,
+                    services_label: document.getElementById('statsServicesLabel').value,
+                    experience_count: document.getElementById('statsExperience').value,
+                    experience_label: document.getElementById('statsExperienceLabel').value,
+                    technicians_count: document.getElementById('statsTechnicians').value,
+                    technicians_label: document.getElementById('statsTechniciansLabel').value
+                };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/stats`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Stats section saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save stats section:', error);
+                showNotification('Failed to save stats section', 'error');
+            }
+        }
+        
+        // ==================== CONTACT SECTION ====================
+        async function loadContact() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/contact`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('contactPhone').value = data.data.phone || '';
+                    document.getElementById('contactWhatsapp').value = data.data.whatsapp || '';
+                    document.getElementById('contactEmail').value = data.data.email || '';
+                    document.getElementById('contactAddress').value = data.data.address || '';
+                    document.getElementById('contactHours').value = data.data.business_hours || '';
+                    document.getElementById('contactMaps').value = data.data.google_maps_embed || '';
+                    document.getElementById('contactShowForm').value = data.data.show_form || 'true';
+                }
+            } catch (error) {
+                console.error('Failed to load contact section:', error);
+            }
+        }
+        
+        async function saveContactSection() {
+            try {
+                const data = {
+                    phone: document.getElementById('contactPhone').value,
+                    whatsapp: document.getElementById('contactWhatsapp').value,
+                    email: document.getElementById('contactEmail').value,
+                    address: document.getElementById('contactAddress').value,
+                    business_hours: document.getElementById('contactHours').value,
+                    google_maps_embed: document.getElementById('contactMaps').value,
+                    show_form: document.getElementById('contactShowForm').value
+                };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/contact`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Contact section saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save contact section:', error);
+                showNotification('Failed to save contact section', 'error');
+            }
+        }
+        
+        // ==================== FOOTER SECTION ====================
+        async function loadFooter() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/footer`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('footerCompanyName').value = data.data.company_name || '';
+                    document.getElementById('footerTagline').value = data.data.tagline || '';
+                    document.getElementById('footerCopyright').value = data.data.copyright_text || '';
+                    document.getElementById('footerFacebook').value = data.data.social_facebook || '';
+                    document.getElementById('footerInstagram').value = data.data.social_instagram || '';
+                    document.getElementById('footerTwitter').value = data.data.social_twitter || '';
+                    document.getElementById('footerYoutube').value = data.data.social_youtube || '';
+                }
+            } catch (error) {
+                console.error('Failed to load footer section:', error);
+            }
+        }
+        
+        async function saveFooterSection() {
+            try {
+                const data = {
+                    company_name: document.getElementById('footerCompanyName').value,
+                    tagline: document.getElementById('footerTagline').value,
+                    copyright_text: document.getElementById('footerCopyright').value,
+                    social_facebook: document.getElementById('footerFacebook').value,
+                    social_instagram: document.getElementById('footerInstagram').value,
+                    social_twitter: document.getElementById('footerTwitter').value,
+                    social_youtube: document.getElementById('footerYoutube').value
+                };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/footer`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Footer section saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save footer section:', error);
+                showNotification('Failed to save footer section', 'error');
+            }
+        }
+        
+        // ==================== JUSTDIAL SECTION ====================
+        async function loadJustdial() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/section/justdial`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('justdialShow').value = data.data.show_badge || 'true';
+                    document.getElementById('justdialRating').value = data.data.rating || '';
+                    document.getElementById('justdialReviews').value = data.data.review_count || '';
+                    document.getElementById('justdialVerified').value = data.data.verified_text || '';
+                    document.getElementById('justdialBadgeImage').value = data.data.badge_image || '';
+                }
+            } catch (error) {
+                console.error('Failed to load justdial section:', error);
+            }
+        }
+        
+        async function saveJustdialSection() {
+            try {
+                const data = {
+                    show_badge: document.getElementById('justdialShow').value,
+                    rating: document.getElementById('justdialRating').value,
+                    review_count: document.getElementById('justdialReviews').value,
+                    verified_text: document.getElementById('justdialVerified').value,
+                    badge_image: document.getElementById('justdialBadgeImage').value
+                };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/section/justdial`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('JustDial section saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save justdial section:', error);
+                showNotification('Failed to save justdial section', 'error');
+            }
+        }
+        
+        // ==================== SITE SETTINGS ====================
+        async function loadSiteSettings() {
+            try {
+                const response = await fetch(`${ADMIN_API_BASE}/settings/site`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('siteTitle').value = data.data.site_title || '';
+                    document.getElementById('siteDescription').value = data.data.site_description || '';
+                    document.getElementById('siteKeywords').value = data.data.site_keywords || '';
+                    document.getElementById('siteLogo').value = data.data.logo_url || '';
+                    document.getElementById('siteFavicon').value = data.data.favicon_url || '';
+                    document.getElementById('siteAnalytics').value = data.data.analytics_code || '';
+                    document.getElementById('siteWhatsapp').value = data.data.whatsapp_number || '';
+                    document.getElementById('siteEnableWhatsapp').value = data.data.enable_whatsapp || 'true';
+                }
+            } catch (error) {
+                console.error('Failed to load site settings:', error);
+            }
+        }
+        
+        async function saveSiteSettings() {
+            try {
+                const data = {
+                    site_title: document.getElementById('siteTitle').value,
+                    site_description: document.getElementById('siteDescription').value,
+                    site_keywords: document.getElementById('siteKeywords').value,
+                    logo_url: document.getElementById('siteLogo').value,
+                    favicon_url: document.getElementById('siteFavicon').value,
+                    analytics_code: document.getElementById('siteAnalytics').value,
+                    whatsapp_number: document.getElementById('siteWhatsapp').value,
+                    enable_whatsapp: document.getElementById('siteEnableWhatsapp').value
+                };
+                
+                const response = await fetch(`${ADMIN_API_BASE}/settings/site`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Site settings saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Failed to save site settings:', error);
+                showNotification('Failed to save site settings', 'error');
+            }
+        }
+        
+        // ==================== IMAGE UPLOAD ====================
+        async function uploadImage(inputId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('File size must be less than 5MB', 'error');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                try {
+                    const response = await fetch(`${ADMIN_API_BASE}/upload/image`, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        document.getElementById(inputId).value = data.data.url;
+                        showNotification('Image uploaded successfully!', 'success');
+                    } else {
+                        showNotification('Failed to upload: ' + data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Failed to upload image:', error);
+                    showNotification('Failed to upload image', 'error');
+                }
+            };
+            
+            input.click();
+        }
+        
+        // ==================== MESSAGES & REQUESTS ====================
+        async function loadMessages() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/messages`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('messagesTable');
+                    tbody.innerHTML = data.data.map(msg => `
+                        <tr>
+                            <td>${msg.id}</td>
+                            <td>${msg.name}</td>
+                            <td>${msg.phone}</td>
+                            <td>${msg.service_type}</td>
+                            <td>${new Date(msg.created_at).toLocaleDateString()}</td>
+                            <td><span class="status-badge ${msg.status === 'unread' ? 'status-active' : ''}">${msg.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewMessage(${msg.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+            }
+        }
+        
+        async function loadServiceRequests() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/requests`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('requestsTable');
+                    tbody.innerHTML = data.data.map(req => `
+                        <tr>
+                            <td>${req.id}</td>
+                            <td>${req.name}</td>
+                            <td>${req.phone}</td>
+                            <td>${req.service_type}</td>
+                            <td>${new Date(req.created_at).toLocaleDateString()}</td>
+                            <td><span class="status-badge ${req.status === 'Pending' ? 'status-active' : ''}">${req.status}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewRequest(${req.id})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load requests:', error);
+            }
+        }
+
+        // View Message - Already implemented in admin-management.js
+        // function viewMessage(id) - REMOVED (duplicate)
+
+        // View Request - Already implemented in admin-management.js  
+        // function viewRequest(id) - REMOVED (duplicate)
+
+        // ==================== PREVIEW ====================
+        function openPreview() {
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

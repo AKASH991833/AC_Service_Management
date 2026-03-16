@@ -1,0 +1,68 @@
+/* ========================================
+   ANSH AIR COOL - CSS VARIABLES
+   Centralized design tokens
+======================================== */
+
+:root {
+    /* Base Colors */
+    --primary-bg: #0C0E1D;
+    --secondary-gradient: #211F36;
+    --soft-accent: #616083;
+    
+    /* Glow Colors */
+    --primary-glow: #FF81FF;
+    --success-accent: #51FAAA;
+    --soft-purple: #AB7DE3;
+    
+    /* Enhanced Colors */
+    --cyan-glow: #00F5FF;
+    --pink-glow: #FF0080;
+    --gold-accent: #FFD700;
+    
+    /* Gradients */
+    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    
+    /* Typography */
+    --font-primary: 'Poppins', sans-serif;
+    
+    /* Animation Variables */
+    --glow-intensity: 1;
+    --animation-speed: 1;
+    
+    /* Spacing */
+    --section-padding: 5rem 0;
+    --container-gutter: 1.5rem;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --shadow-glow: 0 0 20px rgba(255, 129, 255, 0.3);
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 30px;
+    --radius-full: 50px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Z-index layers */
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-popover: 600;
+    --z-tooltip: 700;
+    --z-toast: 9999;
+}

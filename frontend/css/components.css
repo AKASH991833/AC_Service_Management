@@ -1,0 +1,291 @@
+/* ========================================
+   ANSH AIR COOL - COMPONENT STYLES
+   Reusable UI components
+======================================== */
+
+/* ========================================
+   GLASS CARDS
+======================================== */
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    transition: all var(--transition-base);
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.glass-modal {
+    background: rgba(33, 31, 54, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+}
+
+/* ========================================
+   BUTTONS
+======================================== */
+.btn-primary-glow {
+    background: linear-gradient(135deg, var(--primary-glow), var(--soft-purple));
+    border: none;
+    color: #ffffff;
+    padding: 14px 32px;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all var(--transition-base);
+    box-shadow: 0 5px 20px rgba(255, 129, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary-glow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 40px rgba(255, 129, 255, 0.5);
+    color: #ffffff !important;
+}
+
+.btn-primary-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left var(--transition-slow);
+}
+
+.btn-primary-glow:hover::before {
+    left: 100%;
+}
+
+.btn-outline-glow {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    color: #ffffff !important;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: visible;
+}
+
+.btn-outline-glow:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+}
+
+.btn-whatsapp {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    border: none;
+    color: #ffffff;
+    padding: 14px 32px;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all var(--transition-base);
+    box-shadow: 0 5px 20px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:hover {
+    background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+    color: #ffffff !important;
+}
+
+/* ========================================
+   NAVBAR
+======================================== */
+.navbar-custom {
+    background: rgba(12, 14, 29, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    padding: 1rem 2rem;
+    transition: all var(--transition-base);
+}
+
+.navbar-custom.scrolled {
+    background: rgba(12, 14, 29, 0.98);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-custom .navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-glow), var(--cyan-glow));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.navbar-custom .nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.navbar-custom .nav-link:hover,
+.navbar-custom .nav-link.active {
+    color: var(--cyan-glow);
+}
+
+.navbar-custom .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-glow), var(--cyan-glow));
+    transform: translateX(-50%);
+    transition: width var(--transition-base);
+}
+
+.navbar-custom .nav-link:hover::after {
+    width: 80%;
+}
+
+/* ========================================
+   LOADING SCREEN
+======================================== */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-gradient) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-toast);
+    transition: opacity var(--transition-slow), visibility var(--transition-slow);
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-container {
+    text-align: center;
+}
+
+.loader-logo {
+    font-size: 4rem;
+    color: var(--primary-glow);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loader-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 1rem 0;
+}
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--cyan-glow);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto 0;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   CURSOR TRAIL
+======================================== */
+#cursor-trail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: var(--z-tooltip);
+}
+
+/* ========================================
+   PARTICLES
+======================================== */
+#particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: var(--z-base);
+}
+
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* ========================================
+   SCROLL TO TOP BUTTON
+======================================== */
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-glow), var(--soft-purple));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all var(--transition-base);
+    z-index: var(--z-sticky);
+    box-shadow: 0 5px 20px rgba(255, 129, 255, 0.4);
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255, 129, 255, 0.6);
+}

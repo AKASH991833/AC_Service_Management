@@ -1,0 +1,25 @@
+# robots.txt for Ansh Air Cool
+# https://anshaircool.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Allow all pages
+Allow: /index.html
+Allow: /admin/
+
+# Disallow backend API from being crawled
+Disallow: /backend/
+Disallow: /api/
+
+# Disallow uploads folder
+Disallow: /uploads/
+
+# Disallow archive
+Disallow: /archive/
+
+# Sitemap location
+Sitemap: https://anshaircool.com/sitemap.xml
+
+# Crawl-delay (optional)
+Crawl-delay: 1

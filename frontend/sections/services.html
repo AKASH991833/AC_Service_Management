@@ -1,0 +1,180 @@
+<!-- ========================================
+     SERVICES SECTION
+     Expandable Services with View More
+======================================== -->
+<section id="services" class="py-5 my-5">
+    <div class="container">
+        <!-- Enhanced Header -->
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title">Our Premium Services</h2>
+            <p class="section-subtitle">Professional AC solutions tailored to your needs</p>
+            
+            <!-- Service Features -->
+            <div class="service-features mt-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="service-feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Certified Technicians</span>
+                </div>
+                <div class="service-feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>90 Days Warranty</span>
+                </div>
+                <div class="service-feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Same Day Service</span>
+                </div>
+                <div class="service-feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Best Prices</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4" id="services-container">
+            <!-- Main 3 Services (Always Visible) -->
+            <div class="col-lg-4 col-md-6 service-item main-service" data-aos="fade-up" data-aos-delay="100">
+                <div class="glass-card service-card">
+                    <div class="service-image-wrapper">
+                        <img data-src="https://images.unsplash.com/photo-1631545806609-4b0e36d4d0a8?q=80&w=400&auto=format&fit=crop"
+                             alt="AC Installation"
+                             class="lazy">
+                    </div>
+                    <div class="service-content">
+                        <div class="icon-container">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3>AC Installation</h3>
+                        <p class="service-price">
+                            <span class="price-label">From</span>
+                            <span class="price-amount">₹1,499</span>
+                        </p>
+                        <p class="service-duration">
+                            <i class="fas fa-clock"></i> 2-3 Hrs
+                        </p>
+                        <ul class="service-features-list">
+                            <li><i class="fas fa-check-circle"></i> Free Site Survey</li>
+                            <li><i class="fas fa-check-circle"></i> Pro Setup</li>
+                            <li><i class="fas fa-check-circle"></i> 1 Year Warranty</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-primary-glow service-btn" data-service="installation">
+                            <i class="fas fa-quote-right me-2"></i>Get Quote
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 service-item main-service" data-aos="fade-up" data-aos-delay="200">
+                <div class="glass-card service-card">
+                    <div class="service-image-wrapper">
+                        <img data-src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=400&auto=format&fit=crop"
+                             alt="AC Repair"
+                             class="lazy">
+                    </div>
+                    <div class="service-content">
+                        <div class="icon-container">
+                            <i class="fas fa-wrench"></i>
+                        </div>
+                        <h3>AC Repair</h3>
+                        <p class="service-price">
+                            <span class="price-label">From</span>
+                            <span class="price-amount">₹499</span>
+                        </p>
+                        <p class="service-duration">
+                            <i class="fas fa-clock"></i> 1-2 Hrs
+                        </p>
+                        <ul class="service-features-list">
+                            <li><i class="fas fa-check-circle"></i> Quick Diagnosis</li>
+                            <li><i class="fas fa-check-circle"></i> Same Day</li>
+                            <li><i class="fas fa-check-circle"></i> 90 Days Warranty</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-primary-glow service-btn" data-service="repair">
+                            <i class="fas fa-calendar-check me-2"></i>Book Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 service-item main-service" data-aos="fade-up" data-aos-delay="300">
+                <div class="glass-card service-card">
+                    <div class="service-image-wrapper">
+                        <img data-src="https://images.unsplash.com/photo-1635274531661-1c5a7e0f5f1c?q=80&w=400&auto=format&fit=crop"
+                             alt="Gas Refill Service"
+                             class="lazy">
+                    </div>
+                    <div class="service-content">
+                        <div class="icon-container">
+                            <i class="fas fa-fill-drip"></i>
+                        </div>
+                        <h3>Gas Refill</h3>
+                        <p class="service-price">
+                            <span class="price-label">From</span>
+                            <span class="price-amount">₹2,499</span>
+                        </p>
+                        <p class="service-duration">
+                            <i class="fas fa-clock"></i> 1-2 Hrs
+                        </p>
+                        <ul class="service-features-list">
+                            <li><i class="fas fa-check-circle"></i> Leak Detection</li>
+                            <li><i class="fas fa-check-circle"></i> Eco-Friendly</li>
+                            <li><i class="fas fa-check-circle"></i> Pressure Check</li>
+                        </ul>
+                        <a href="#contact" class="btn btn-primary-glow service-btn" data-service="gas">
+                            <i class="fas fa-calendar-check me-2"></i>Schedule
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden Services (Show on "View More" click) -->
+            <div class="col-lg-4 col-md-6 service-item hidden-service" style="display: none;" data-aos="fade-up">
+                <div class="glass-card">
+                    <img data-src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=400&auto=format&fit=crop"
+                         alt="AMC Service"
+                         class="lazy">
+                    <div class="icon-container">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h3>AMC Plans</h3>
+                    <p>Annual maintenance contracts with regular servicing, priority support, and exclusive discounts.</p>
+                    <a href="#contact" class="btn btn-primary-glow service-btn" data-service="amc">View Plans</a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 service-item hidden-service" style="display: none;" data-aos="fade-up">
+                <div class="glass-card">
+                    <img data-src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=400&auto=format&fit=crop"
+                         alt="PCB Repair"
+                         class="lazy">
+                    <div class="icon-container">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>PCB Repair</h3>
+                    <p>Advanced circuit board repair and replacement. We fix all electronic control issues efficiently.</p>
+                    <a href="#contact" class="btn btn-primary-glow service-btn" data-service="pcb">Contact Us</a>
+                </div>
+            </div>
+
+            <!-- More Hidden Services -->
+            <div class="col-lg-4 col-md-6 service-item hidden-service" style="display: none;" data-aos="fade-up">
+                <div class="glass-card">
+                    <img data-src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop"
+                         alt="AC Cleaning"
+                         class="lazy">
+                    <div class="icon-container">
+                        <i class="fas fa-spray-can"></i>
+                    </div>
+                    <h3>Deep Cleaning</h3>
+                    <p>Complete AC deep cleaning service with chemical wash and sanitization for better air quality.</p>
+                    <a href="#contact" class="btn btn-primary-glow service-btn" data-service="cleaning">Book Clean</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- View More Button -->
+        <div class="text-center mt-5">
+            <button id="view-more-services" class="btn btn-outline-glow view-more-button">
+                <i class="fas fa-plus me-2"></i>View All Services
+            </button>
+        </div>
+    </div>
+</section>
