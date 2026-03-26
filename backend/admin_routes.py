@@ -16,7 +16,8 @@ from models import (
     ContactMessage, ServiceRequest
 )
 from werkzeug.utils import secure_filename
-from security import log_security_event, validate_session
+from security import log_security_event, validate_session, require_admin_enhanced, add_security_headers, validate_csrf_token
+from image_optimizer import get_image_optimizer
 
 logger = None
 try:
@@ -30,38 +31,8 @@ admin_bp = Blueprint('admin_full', __name__)
 # Limiter for rate limiting
 limiter = Limiter(key_func=get_remote_address, storage_uri="memory://")
 
-
-def require_admin(f):
-    """Admin authentication decorator"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        admin_id = session.get('admin_id')
-        if not admin_id:
-            return jsonify({
-                "success": False,
-                "message": "Unauthorized - Please login"
-            }), 401
-
-        if not validate_session():
-            session.pop('admin_id', None)
-            return jsonify({
-                "success": False,
-                "message": "Session expired - Please login again"
-            }), 401
-
-        admin = Admin.query.get(admin_id)
-        if not admin or not admin.is_active:
-            session.pop('admin_id', None)
-            return jsonify({
-                "success": False,
-                "message": "Account is deactivated"
-            }), 401
-
-        response = make_response(f(*args, **kwargs))
-        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response
-    return decorated_function
+# Use require_admin_enhanced from security.py for consistent authentication
+require_admin = require_admin_enhanced
 
 
 # ========================================
@@ -70,6 +41,7 @@ def require_admin(f):
 
 @admin_bp.route('/section/hero', methods=['GET'])
 @require_admin
+@limiter.limit("100 per hour")
 def get_hero_section():
     """Get Hero section content"""
     try:
@@ -99,6 +71,7 @@ def get_hero_section():
 
 @admin_bp.route('/section/hero', methods=['PUT'])
 @require_admin
+@limiter.limit("30 per hour")
 def update_hero_section():
     """Update Hero section content"""
     try:
@@ -858,37 +831,41 @@ def update_site_settings():
 
 @admin_bp.route('/upload/image', methods=['POST'])
 @require_admin
+@limiter.limit("20 per minute")
 def upload_image():
-    """Upload image helper"""
+    """Upload image helper with optimization"""
     try:
         if 'image' not in request.files:
             return jsonify({"success": False, "message": "No image provided"}), 400
-        
+
         file = request.files['image']
         if file.filename == '':
             return jsonify({"success": False, "message": "No file selected"}), 400
+
+        # Get image optimizer instance
+        uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+        optimizer = get_image_optimizer(uploads_dir)
         
-        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-        ext = file.filename.rsplit('.', 1)[1].lower()
+        # Process and optimize image
+        result = optimizer.process_upload(file, category='gallery')
         
-        if ext not in allowed_extensions:
-            return jsonify({"success": False, "message": "Invalid file type"}), 400
-        
-        # Save file
-        uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads', 'website')
-        os.makedirs(uploads_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"{timestamp}_{secure_filename(file.filename)}"
-        filepath = os.path.join(uploads_dir, filename)
-        file.save(filepath)
-        
-        image_url = f"/uploads/website/{filename}"
-        
+        if not result['success']:
+            return jsonify({
+                "success": False,
+                "message": result.get('error', 'Image processing failed')
+            }), 400
+
         return jsonify({
             "success": True,
-            "message": "Image uploaded",
-            "data": {"url": image_url, "filename": filename}
+            "message": "Image uploaded and optimized",
+            "data": {
+                "url": result['url'],
+                "filename": result['filename'],
+                "original_size": result.get('original_size', 0),
+                "optimized_size": result.get('optimized_size', 0),
+                "compression_ratio": result.get('compression_ratio', '0%'),
+                "dimensions": result.get('dimensions', 'unknown')
+            }
         }), 200
     except Exception as e:
         if logger: logger.error(f"Error uploading image: {str(e)}")

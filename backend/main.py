@@ -13,20 +13,16 @@ from dotenv import load_dotenv
 import os
 import logging
 from datetime import timedelta
+from logging_config import setup_logging
 
 # Load environment variables
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('backend.log', encoding='utf-8')
-    ]
-)
-logger = logging.getLogger(__name__)
+# Setup logging first
+loggers = setup_logging()
+logger = loggers['app']
+security_logger = loggers['security']
+admin_logger = loggers['admin']
 
 from models import db, ServiceRequest, ContactMessage
 from routes import api_bp
@@ -41,19 +37,21 @@ def create_app():
     # ========================================
     # SECURITY CONFIGURATION
     # ========================================
-    
-    # Secret key for sessions
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-    if not app.config['SECRET_KEY'] or 'CHANGE_THIS' in app.config['SECRET_KEY']:
-        logger.warning("⚠️ WARNING: Using default SECRET_KEY! Change in production!")
-        app.config['SECRET_KEY'] = 'ansh_aircool_super_secret_key_2026_change_in_production'
 
-    # Session Security
-    app.config['SESSION_COOKIE_NAME'] = 'admin_session'
+    # Secret key for sessions - MUST be set in environment
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    if not app.config['SECRET_KEY'] or 'CHANGE_THIS' in app.config['SECRET_KEY'] or 'change_this' in app.config['SECRET_KEY']:
+        logger.error("❌ CRITICAL: SECRET_KEY not properly configured!")
+        logger.error("Please set a secure SECRET_KEY in .env file")
+        logger.error("Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\"")
+        raise ValueError("SECRET_KEY must be set to a secure random value in production")
+
+    # Session Security - Production Hardened
+    app.config['SESSION_COOKIE_NAME'] = 'ansh_admin_session'
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_SECURE'] = os.getenv('FLASK_ENV') == 'production'  # HTTPS only in production
+    app.config['SESSION_COOKIE_SECURE'] = os.getenv('FLASK_ENV') == 'production'  # HTTPS only
     app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # 1 hour session timeout
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 
     # Database configuration
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+pymysql://root:@localhost/ansh_aircool')
@@ -99,27 +97,7 @@ def create_app():
             "expose_headers": ["Content-Type", "Authorization", "Set-Cookie"],
             "max_age": 3600
         }
-    }, automatic_options=False)  # Disable automatic OPTIONS handling
-
-    # Handle OPTIONS requests explicitly (prevent duplicate headers)
-    @app.after_request
-    def handle_cors_headers(response):
-        """Add CORS headers to all responses"""
-        origin = request.headers.get('Origin', '')
-        
-        # Only add CORS headers for allowed origins
-        if origin in allowed_origins:
-            # Clear any existing CORS headers first
-            if response.headers.get('Access-Control-Allow-Origin'):
-                response.headers.remove('Access-Control-Allow-Origin')
-            
-            # Add single CORS header
-            response.headers['Access-Control-Allow-Origin'] = origin
-            response.headers['Access-Control-Allow-Credentials'] = 'true'
-            response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,X-API-KEY,X-CSRF-Token'
-            response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
-
-        return response
+    })
 
     # Rate limiting configuration (Increased for development)
     limiter = Limiter(

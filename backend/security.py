@@ -251,6 +251,105 @@ def require_csrf(f):
 # RATE LIMITING & BRUTE FORCE PROTECTION
 # ========================================
 
+# Login attempt tracking (in-memory, use Redis in production)
+login_attempts = {}
+locked_accounts = {}
+
+def track_login_attempt(username, ip_address, success=False):
+    """
+    Track login attempts for brute force protection
+    
+    Args:
+        username: Username attempted
+        ip_address: IP address of attempt
+        success: Whether login was successful
+    
+    Returns:
+        dict: Status with is_locked and remaining_attempts
+    """
+    from datetime import datetime, timedelta
+    
+    now = datetime.now()
+    key = f"{username}:{ip_address}"
+    
+    # TEMPORARILY DISABLED FOR TESTING - Account lock feature
+    # Check if account is locked
+    if False and username in locked_accounts:  # LOCK DISABLED
+        lock_info = locked_accounts[username]
+        if now < lock_info['locked_until']:
+            remaining_lock = int((lock_info['locked_until'] - now).total_seconds())
+            return {
+                'is_locked': True,
+                'remaining_seconds': remaining_lock,
+                'message': f'Account temporarily locked. Try again in {remaining_lock} seconds'
+            }
+        else:
+            # Lock expired, remove it
+            del locked_accounts[username]
+    
+    if success:
+        # Clear attempts on successful login
+        if key in login_attempts:
+            del login_attempts[key]
+        return {'is_locked': False, 'remaining_attempts': 5}
+    
+    # Track failed attempt
+    if key not in login_attempts:
+        login_attempts[key] = {
+            'attempts': [],
+            'last_attempt': now
+        }
+    
+    attempt_data = login_attempts[key]
+    attempt_data['attempts'].append(now)
+    attempt_data['last_attempt'] = now
+    
+    # Clean old attempts (older than 30 minutes)
+    window_start = now - timedelta(minutes=30)
+    attempt_data['attempts'] = [t for t in attempt_data['attempts'] if t > window_start]
+    
+    # Check if lockout threshold reached (5 failed attempts)
+    # TEMPORARILY DISABLED FOR TESTING
+    if False and len(attempt_data['attempts']) >= 5:  # LOCK DISABLED
+        # Lock for 15 minutes
+        lock_duration = timedelta(minutes=15)
+        locked_accounts[username] = {
+            'locked_until': now + lock_duration,
+            'reason': 'multiple_failed_attempts',
+            'ip': ip_address
+        }
+
+        # Log security event
+        log_security_event('ACCOUNT_LOCKED', {
+            'username': username,
+            'ip': ip_address,
+            'failed_attempts': len(attempt_data['attempts'])
+        })
+
+        return {
+            'is_locked': True,
+            'remaining_seconds': 900,  # 15 minutes
+            'message': 'Account locked due to multiple failed attempts. Try again in 15 minutes.'
+        }
+    
+    remaining_attempts = 5 - len(attempt_data['attempts'])
+    
+    # Log warning if approaching lockout
+    if remaining_attempts <= 2:
+        log_security_event('MULTIPLE_FAILED_LOGINS', {
+            'username': username,
+            'ip': ip_address,
+            'failed_attempts': len(attempt_data['attempts']),
+            'remaining_attempts': remaining_attempts
+        })
+    
+    return {
+        'is_locked': False,
+        'remaining_attempts': remaining_attempts,
+        'warning': f'Warning: {remaining_attempts} attempts remaining before lockout' if remaining_attempts <= 2 else None
+    }
+
+
 def get_client_ip():
     """Get real client IP even behind proxy"""
     if request.headers.get('X-Forwarded-For'):

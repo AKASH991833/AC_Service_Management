@@ -24,7 +24,9 @@ const SectionsLoader = (function() {
         }
 
         try {
-            const response = await fetch(filePath);
+            // Add cache-busting to force fresh load
+            const bustKey = '?v=20260328';
+            const response = await fetch(filePath + bustKey);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

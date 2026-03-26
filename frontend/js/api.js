@@ -100,20 +100,21 @@ const API = (function() {
 
     /**
      * Make API request with retry logic and security headers
+     * 
+     * SECURITY:
+     * - Public endpoints: No authentication required
+     * - Admin endpoints: Session-based auth (cookies sent automatically)
+     * - Credentials included for all requests
      */
     async function request(endpoint, options = {}) {
         const url = `${API_CONFIG.BASE_URL}${endpoint}`;
 
-        // Get CSRF token for state-changing requests
-        const csrfToken = getCsrfToken();
-
         const defaultOptions = {
             headers: {
-                'Content-Type': 'application/json',
-                'X-API-KEY': API_CONFIG.API_KEY,
-                'X-CSRF-Token': csrfToken
+                'Content-Type': 'application/json'
+                // NO API_KEY - using session-based authentication
             },
-            credentials: 'include',
+            credentials: 'include',  // Include cookies for session auth
             timeout: API_CONFIG.TIMEOUT
         };
 

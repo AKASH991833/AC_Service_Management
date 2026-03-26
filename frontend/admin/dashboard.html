@@ -22,6 +22,8 @@
     <!-- Custom Admin CSS -->
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="../css/enhanced-responsive.css">
+    <!-- Premium Dashboard Overhaul -->
+    <link rel="stylesheet" href="../css/admin-pro.css?v=20260329">
     <style>
         /* Mobile Responsive Optimizations */
         @media (max-width: 768px) {
@@ -200,21 +202,11 @@
 
         /* Touch device optimizations */
         @media (hover: none) and (pointer: coarse) {
-            button,
-            .btn,
-            a,
-            input,
-            select {
+            button, .btn, a, input, select {
                 min-height: 44px !important;
                 min-width: 44px !important;
             }
-
-            .sidebar-nav .nav-item {
-                min-height: 48px;
-            }
-        }
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 129, 255, 0.2);
+            .sidebar-nav .nav-item { min-height: 48px; }
         }
         
         .section-title {
@@ -547,10 +539,14 @@
                     </button>
                     <h2 id="pageTitle">Dashboard</h2>
                 </div>
-                <div class="top-bar-right">
-                    <button class="btn btn-preview me-3" id="previewBtn">
-                        <i class="fas fa-eye me-2"></i>Preview Website
-                    </button>
+                <div class="top-bar-right" style="gap:12px;display:flex;align-items:center;">
+                    <div class="backend-status offline" id="backendStatus">
+                        <span class="dot"></span>
+                        <span>Backend</span>
+                    </div>
+                    <a href="../index.html" target="_blank" class="btn btn-preview">
+                        <i class="fas fa-external-link-alt me-2"></i>Preview Site
+                    </a>
                     <div class="admin-profile">
                         <div class="profile-avatar">
                             <i class="fas fa-user-circle"></i>
@@ -559,78 +555,90 @@
                     </div>
                 </div>
             </header>
+            <!-- Toast Container -->
+            <div class="toast-container" id="toastContainer"></div>
 
             <!-- Content Wrapper -->
             <div class="content-wrapper">
                 <!-- Dashboard Overview -->
                 <div id="dashboard-section" class="content-section active">
                     <div class="stats-grid">
-                        <div class="stat-card stat-primary">
-                            <div class="stat-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
+                        <div class="stat-card stat-primary" style="cursor:pointer" onclick="navigateToSection('messages')">
+                            <div class="stat-icon"><i class="fas fa-envelope"></i></div>
                             <div class="stat-details">
-                                <h3 id="totalMessages">0</h3>
-                                <p>Total Messages</p>
+                                <h3 id="totalMessages">—</h3>
+                                <p>Contact Messages</p>
+                                <div class="stat-trend"><i class="fas fa-inbox"></i> <span id="unreadMsgCount" style="color:rgba(255,255,255,0.5)">Loading…</span></div>
                             </div>
                         </div>
-
-                        <div class="stat-card stat-success">
-                            <div class="stat-icon">
-                                <i class="fas fa-tools"></i>
-                            </div>
+                        <div class="stat-card stat-success" style="cursor:pointer" onclick="navigateToSection('service-requests')">
+                            <div class="stat-icon"><i class="fas fa-tools"></i></div>
                             <div class="stat-details">
-                                <h3 id="totalRequests">0</h3>
+                                <h3 id="totalRequests">—</h3>
                                 <p>Service Requests</p>
+                                <div class="stat-trend" style="color:rgba(255,255,255,0.5)" id="totalReqSub">Loading…</div>
                             </div>
                         </div>
-
-                        <div class="stat-card stat-warning">
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
+                        <div class="stat-card stat-warning" style="cursor:pointer" onclick="navigateToSection('service-requests')">
+                            <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
                             <div class="stat-details">
-                                <h3 id="pendingRequests">0</h3>
+                                <h3 id="pendingRequests">—</h3>
                                 <p>Pending</p>
+                                <div class="stat-trend" style="color:var(--pending-color)"><i class="fas fa-circle" style="font-size:8px"></i> Awaiting action</div>
                             </div>
                         </div>
-
-                        <div class="stat-card stat-info">
-                            <div class="stat-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
+                        <div class="stat-card stat-info" style="cursor:pointer" onclick="navigateToSection('service-requests')">
+                            <div class="stat-icon"><i class="fas fa-check-double"></i></div>
                             <div class="stat-details">
-                                <h3 id="completedRequests">0</h3>
+                                <h3 id="completedRequests">—</h3>
                                 <p>Completed</p>
+                                <div class="stat-trend"><i class="fas fa-circle" style="font-size:8px"></i> Done</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass-card mt-4">
-                        <div class="card-header">
-                            <h4><i class="fas fa-info-circle me-2"></i>Quick Actions</h4>
+                    <div class="overview-grid">
+                        <!-- Quick Actions -->
+                        <div class="glass-card">
+                            <div class="card-header"><h4><i class="fas fa-bolt me-2" style="color:var(--warning-color)"></i>Quick Actions</h4></div>
+                            <div class="quick-grid">
+                                <a href="#" class="quick-card" onclick="navigateToSection('messages');return false;">
+                                    <div class="quick-card-icon" style="background:rgba(255,129,255,0.12);color:var(--primary-glow);"><i class="fas fa-envelope"></i></div>
+                                    <span class="quick-card-label">View Messages</span>
+                                </a>
+                                <a href="#" class="quick-card" onclick="navigateToSection('service-requests');return false;">
+                                    <div class="quick-card-icon" style="background:rgba(96,165,250,0.12);color:var(--inprog-color);"><i class="fas fa-tools"></i></div>
+                                    <span class="quick-card-label">Requests</span>
+                                </a>
+                                <a href="#" class="quick-card" onclick="navigateToSection('services');return false;">
+                                    <div class="quick-card-icon" style="background:rgba(52,211,153,0.12);color:var(--completed-color);"><i class="fas fa-concierge-bell"></i></div>
+                                    <span class="quick-card-label">Services</span>
+                                </a>
+                                <a href="#" class="quick-card" onclick="navigateToSection('products');return false;">
+                                    <div class="quick-card-icon" style="background:rgba(245,158,11,0.12);color:var(--pending-color);"><i class="fas fa-snowflake"></i></div>
+                                    <span class="quick-card-label">Products</span>
+                                </a>
+                                <a href="#" class="quick-card" onclick="navigateToSection('testimonials');return false;">
+                                    <div class="quick-card-icon" style="background:rgba(255,129,255,0.12);color:var(--primary-glow);"><i class="fas fa-star"></i></div>
+                                    <span class="quick-card-label">Reviews</span>
+                                </a>
+                                <a href="../index.html" target="_blank" class="quick-card">
+                                    <div class="quick-card-icon" style="background:rgba(0,245,255,0.12);color:var(--cyan-glow);"><i class="fas fa-external-link-alt"></i></div>
+                                    <span class="quick-card-label">View Website</span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="p-4">
-                            <div class="row">
-                                <div class="col-md-3 mb-3">
-                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('hero')">
-                                        <i class="fas fa-edit me-2"></i>Edit Hero
-                                    </button>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('services')">
-                                        <i class="fas fa-plus me-2"></i>Add Service
-                                    </button>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('products')">
-                                        <i class="fas fa-plus me-2"></i>Add Product
-                                    </button>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <button class="btn btn-primary-glow w-100" onclick="navigateToSection('testimonials')">
-                                        <i class="fas fa-star me-2"></i>Add Review
-                                    </button>
+
+                        <!-- Recent Activity -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <h4><i class="fas fa-history me-2" style="color:var(--soft-purple)"></i>Recent Activity</h4>
+                                <button class="btn-refresh" onclick="loadRecentActivity()"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                            <div class="activity-feed" id="activityFeed">
+                                <div class="activity-item">
+                                    <div class="activity-dot dot-message"><i class="fas fa-circle-notch fa-spin"></i></div>
+                                    <div class="activity-content"><div class="activity-title">Loading activity…</div></div>
                                 </div>
                             </div>
                         </div>
@@ -1147,28 +1155,37 @@
                 <div id="messages-section" class="content-section">
                     <div class="glass-card">
                         <div class="card-header">
-                            <h4><i class="fas fa-inbox me-2"></i>Contact Messages</h4>
-                            <button class="btn btn-primary-glow btn-sm" onclick="loadMessages()">
-                                <i class="fas fa-sync-alt me-2"></i>Refresh
-                            </button>
+                            <h4><i class="fas fa-envelope me-2" style="color:var(--primary-glow)"></i>Contact Messages</h4>
+                            <button class="btn-refresh" onclick="loadMessages()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+                        <div class="table-toolbar">
+                            <div class="search-box">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="msgSearch" placeholder="Search by name, phone or service…" oninput="filterMessages()">
+                            </div>
+                            <select class="filter-select" id="msgStatusFilter" onchange="filterMessages()">
+                                <option value="all">All Status</option>
+                                <option value="unread">Unread</option>
+                                <option value="read">Read</option>
+                            </select>
                         </div>
                         <div class="table-responsive">
-                            <table class="data-table">
+                            <table class="data-table" id="messagesTableEl">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Phone</th>
+                                        <th data-col="id" onclick="sortMessages('id')">ID <span class="sort-icon">▲</span></th>
+                                        <th data-col="name" onclick="sortMessages('name')">Customer <span class="sort-icon">▲</span></th>
                                         <th>Service</th>
-                                        <th>Date</th>
+                                        <th data-col="date" onclick="sortMessages('date')">Date <span class="sort-icon">▲</span></th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="messagesTable">
-                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
-                                </tbody>
+                                <tbody id="messagesTable"></tbody>
                             </table>
+                        </div>
+                        <div class="table-footer">
+                            <div class="table-count" id="msgCount">0 messages</div>
                         </div>
                     </div>
                 </div>
@@ -1177,28 +1194,39 @@
                 <div id="service-requests-section" class="content-section">
                     <div class="glass-card">
                         <div class="card-header">
-                            <h4><i class="fas fa-tools me-2"></i>Service Requests</h4>
-                            <button class="btn btn-primary-glow btn-sm" onclick="loadServiceRequests()">
-                                <i class="fas fa-sync-alt me-2"></i>Refresh
-                            </button>
+                            <h4><i class="fas fa-tools me-2" style="color:var(--inprog-color)"></i>Service Requests</h4>
+                            <button class="btn-refresh" onclick="loadServiceRequests()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+                        <div class="table-toolbar">
+                            <div class="search-box">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="reqSearch" placeholder="Search by name, phone or service…" oninput="filterRequests()">
+                            </div>
+                            <select class="filter-select" id="reqStatusFilter" onchange="filterRequests()">
+                                <option value="all">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
                         </div>
                         <div class="table-responsive">
-                            <table class="data-table">
+                            <table class="data-table" id="requestsTableEl">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Customer</th>
-                                        <th>Phone</th>
-                                        <th>Service</th>
-                                        <th>Date</th>
+                                        <th data-col="id" onclick="sortRequests('id')">ID <span class="sort-icon">▲</span></th>
+                                        <th data-col="name" onclick="sortRequests('name')">Customer <span class="sort-icon">▲</span></th>
+                                        <th>Service / AC Type</th>
+                                        <th data-col="date" onclick="sortRequests('date')">Date <span class="sort-icon">▲</span></th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="requestsTable">
-                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
-                                </tbody>
+                                <tbody id="requestsTable"></tbody>
                             </table>
+                        </div>
+                        <div class="table-footer">
+                            <div class="table-count" id="reqCount">0 requests</div>
                         </div>
                     </div>
                 </div>
@@ -1274,15 +1302,28 @@
 
     <!-- Admin Dashboard JavaScript - Load in order -->
     <script src="../js/settings.js"></script>
-    <script src="../js/config.js"></script>
+    <!-- config.js removed - merged into settings.js -->
     <script src="../js/api.js"></script>
     <script src="../js/admin-management.js"></script>
     
     <!-- Dashboard-specific inline scripts (Website Editor) -->
     <script>
-        // Use ADMIN_API configuration from admin-management.js
-        const API_BASE = ADMIN_API?.BASE_URL || 'http://localhost:5000/api';
-        const ADMIN_API_BASE = ADMIN_API?.BASE_URL + '/api/admin-full' || 'http://localhost:5000/api/admin-full';
+        // API Base — fixed concatenation bug (was double-adding /api)
+        const API_BASE      = 'http://localhost:5000';
+        const ADMIN_API_BASE = API_BASE + '/api/admin-full';
+        const API_ENDPOINTS = {
+            LOGIN:    '/api/admin/login',
+            LOGOUT:   '/api/admin/logout',
+            STATS:    '/api/admin/stats',
+            MESSAGES: '/api/admin/messages',
+            REQUESTS: '/api/admin/requests'
+        };
+
+        // Data stores for messages & requests
+        let messagesData = [];
+        let requestsData = [];
+        let msgSortCol = 'date', msgSortDir = -1;
+        let reqSortCol = 'date', reqSortDir = -1;
 
         // State - Don't redeclare, use from admin-management.js
         // let currentAdmin, services, products, testimonials, features; // Already in admin-management.js
@@ -1339,9 +1380,12 @@
             const loginError = document.getElementById('loginError');
 
             try {
-                const response = await fetch(`${API_BASE}/admin/login`, {
+                const response = await fetch(`${ADMIN_API?.BASE_URL || 'http://localhost:5000'}${API_ENDPOINTS.LOGIN}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-API-KEY': ADMIN_API?.API_KEY || '' },
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-API-KEY': ADMIN_API?.API_KEY || '' 
+                    },
                     body: JSON.stringify({ username, password }),
                     credentials: 'include'
                 });
@@ -1382,38 +1426,33 @@
             document.getElementById('loading-screen').classList.add('d-none');
             document.getElementById('login-page').classList.add('d-none');
             document.getElementById('dashboard-page').classList.remove('d-none');
-            
-            document.getElementById('adminName').textContent = currentAdmin?.full_name || 'Admin';
-            
+            document.getElementById('adminName').textContent = currentAdmin?.full_name || currentAdmin?.username || 'Admin';
             loadDashboardStats();
-            
-            // Show welcome notification
-            showNotification('Welcome back, ' + (currentAdmin?.full_name || 'Admin') + '!', 'success');
+            loadRecentActivity();
+            showNotification('Welcome back, ' + (currentAdmin?.full_name || currentAdmin?.username || 'Admin') + '!', 'success');
         }
         
-        // Notification System
+        // ── Premium Toast Notification System ────────────────────
         function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 10000;
-                min-width: 300px;
-                animation: slideInRight 0.3s ease;
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' };
+            const titles = { success: 'Success', error: 'Error', info: 'Info', warning: 'Warning' };
+            const t = type === 'error' ? 'error' : type;
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-item toast-${t}`;
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas ${icons[t] || icons.info}"></i></div>
+                <div class="toast-body">
+                    <div class="toast-title">${titles[t] || 'Notice'}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.closest('.toast-item').remove()">&times;</button>
             `;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.body.appendChild(notification);
-            
+            container.appendChild(toast);
             setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 150);
-            }, 3000);
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 250);
+            }, 4000);
         }
         
         // Show Login
@@ -1459,9 +1498,9 @@
             
             // Load section data
             loadSectionData(section);
-            
-            // Show notification
-            showNotification(`Loaded ${titles[section]}`, 'info');
+
+            // Show notification - DISABLED to prevent annoying popups
+            // showNotification(`Loaded ${titles[section]}`, 'info');
         }
         
         // Load All Sections Data
@@ -1502,23 +1541,86 @@
             }
         }
         
+        // ── Backend status ping ───────────────────────────────────
+        async function checkBackendStatus() {
+            const pill = document.getElementById('backendStatus');
+            try {
+                const r = await fetch(`${API_BASE}/api/admin/stats`, { credentials: 'include', signal: AbortSignal.timeout(3000) });
+                if (r.ok || r.status === 401) {
+                    pill.className = 'backend-status online';
+                } else { pill.className = 'backend-status offline'; }
+            } catch { pill.className = 'backend-status offline'; }
+        }
+
         // Dashboard Stats
         async function loadDashboardStats() {
+            checkBackendStatus();
             try {
-                const response = await fetch(`${API_BASE}/admin/stats`, { credentials: 'include' });
+                const response = await fetch(`${API_BASE}${API_ENDPOINTS.STATS}`, { credentials: 'include' });
                 const data = await response.json();
-                
                 if (data.success) {
-                    document.getElementById('totalMessages').textContent = data.data.totalMessages;
-                    document.getElementById('totalRequests').textContent = data.data.totalRequests;
-                    document.getElementById('pendingRequests').textContent = data.data.pendingRequests;
-                    document.getElementById('completedRequests').textContent = data.data.completedRequests;
-                    document.getElementById('messagesBadge').textContent = data.data.unreadMessages;
-                    document.getElementById('requestsBadge').textContent = data.data.pendingRequests;
+                    const d = data.data;
+                    document.getElementById('totalMessages').textContent = d.totalMessages;
+                    document.getElementById('totalRequests').textContent = d.totalRequests;
+                    document.getElementById('pendingRequests').textContent = d.pendingRequests;
+                    document.getElementById('completedRequests').textContent = d.completedRequests;
+                    document.getElementById('messagesBadge').textContent = d.unreadMessages || '';
+                    document.getElementById('requestsBadge').textContent = d.pendingRequests || '';
+                    const unreadEl = document.getElementById('unreadMsgCount');
+                    if (unreadEl) unreadEl.textContent = d.unreadMessages + ' unread';
+                    const subEl = document.getElementById('totalReqSub');
+                    if (subEl) subEl.textContent = d.pendingRequests + ' pending';
                 }
             } catch (error) {
                 console.error('Failed to load stats:', error);
+                ['totalMessages','totalRequests','pendingRequests','completedRequests'].forEach(id => {
+                    const el = document.getElementById(id); if (el) el.textContent = '—';
+                });
             }
+        }
+
+        // ── Recent Activity feed ──────────────────────────────────
+        async function loadRecentActivity() {
+            const feed = document.getElementById('activityFeed');
+            if (!feed) return;
+            feed.innerHTML = '<div class="activity-item"><div class="activity-dot dot-message"><i class="fas fa-circle-notch fa-spin"></i></div><div class="activity-content"><div class="activity-title">Loading…</div></div></div>';
+            try {
+                const [msgR, reqR] = await Promise.all([
+                    fetch(`${API_BASE}${API_ENDPOINTS.MESSAGES}?limit=5`, { credentials: 'include' }),
+                    fetch(`${API_BASE}${API_ENDPOINTS.REQUESTS}?limit=5`, { credentials: 'include' })
+                ]);
+                const msgs = await msgR.json();
+                const reqs = await reqR.json();
+                let items = [];
+                if (msgs.success) msgs.data.forEach(m => items.push({ type: 'message', text: m.name + ' sent a message', sub: m.service_type, time: m.created_at }));
+                if (reqs.success) reqs.data.forEach(r => items.push({ type: 'request', text: r.customer_name + ' requested ' + r.service_type, sub: r.request_status, time: r.created_at }));
+                items.sort((a, b) => new Date(b.time) - new Date(a.time));
+                items = items.slice(0, 8);
+                if (items.length === 0) { feed.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,0.3)">No recent activity</div>'; return; }
+                feed.innerHTML = items.map(item => `
+                    <div class="activity-item">
+                        <div class="activity-dot ${item.type === 'message' ? 'dot-message' : item.sub === 'Completed' ? 'dot-completed' : 'dot-request'}">
+                            <i class="fas ${item.type === 'message' ? 'fa-envelope' : 'fa-tools'}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">${item.text}</div>
+                            <div class="activity-sub">${item.sub || ''}</div>
+                        </div>
+                        <div class="activity-time">${timeAgo(item.time)}</div>
+                    </div>
+                `).join('');
+            } catch {
+                feed.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(248,113,113,0.6)"><i class="fas fa-plug" style="font-size:22px;margin-bottom:8px;display:block;"></i>Backend offline</div>';
+            }
+        }
+
+        function timeAgo(dateStr) {
+            if (!dateStr) return '';
+            const diff = (Date.now() - new Date(dateStr)) / 1000;
+            if (diff < 60) return 'just now';
+            if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+            return Math.floor(diff/86400) + 'd ago';
         }
         
         // ==================== HERO SECTION ====================
@@ -2430,76 +2532,289 @@
         }
         
         // ==================== MESSAGES & REQUESTS ====================
+        // ── Premium Messages Loader ─────────────────────────────
         async function loadMessages() {
+            const tbody = document.getElementById('messagesTable');
+            if (tbody) tbody.innerHTML = '<tr class="loading-rows"><td colspan="6"><span class="spinner-sm"></span>Loading messages…</td></tr>';
             try {
-                const response = await fetch(`${API_BASE}/admin/messages`, { credentials: 'include' });
-                const data = await response.json();
-                
+                const res = await fetch(`${API_BASE}${API_ENDPOINTS.MESSAGES}?limit=200`, { credentials: 'include' });
+                const data = await res.json();
                 if (data.success) {
-                    const tbody = document.getElementById('messagesTable');
-                    tbody.innerHTML = data.data.map(msg => `
-                        <tr>
-                            <td>${msg.id}</td>
-                            <td>${msg.name}</td>
-                            <td>${msg.phone}</td>
-                            <td>${msg.service_type}</td>
-                            <td>${new Date(msg.created_at).toLocaleDateString()}</td>
-                            <td><span class="status-badge ${msg.status === 'unread' ? 'status-active' : ''}">${msg.status}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="viewMessage(${msg.id})">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    messagesData = data.data;
+                    filterMessages();
+                } else {
+                    renderMsgError('Failed: ' + (data.message || 'Unknown error'));
                 }
-            } catch (error) {
-                console.error('Failed to load messages:', error);
+            } catch (e) {
+                renderMsgError('Backend is offline or unreachable.');
             }
         }
-        
+
+        function renderMsgError(msg) {
+            const tbody = document.getElementById('messagesTable');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="table-error"><div class="table-error-card"><i class="fas fa-plug"></i><p>${msg}</p><small>Check that Flask backend is running on port 5000</small></div></td></tr>`;
+        }
+
+        function statusBadge(status) {
+            const map = { 'unread': 'badge-unread', 'read': 'badge-read', 'Pending': 'badge-pending', 'In Progress': 'badge-inprogress', 'Completed': 'badge-completed', 'Cancelled': 'badge-cancelled', 'Active': 'badge-active', 'Inactive': 'badge-inactive' };
+            const cls = map[status] || 'badge-read';
+            return `<span class="status-badge ${cls}">${status || 'Unknown'}</span>`;
+        }
+
+        function filterMessages() {
+            const q = (document.getElementById('msgSearch')?.value || '').toLowerCase();
+            const sf = document.getElementById('msgStatusFilter')?.value || 'all';
+            let data = [...messagesData];
+            if (q) data = data.filter(m => (m.name||'').toLowerCase().includes(q) || (m.phone||'').includes(q) || (m.service_type||'').toLowerCase().includes(q));
+            if (sf !== 'all') data = data.filter(m => (m.status||'') === sf);
+            data.sort((a, b) => {
+                let va = msgSortCol === 'id' ? a.id : msgSortCol === 'name' ? (a.name||'') : new Date(a.created_at||0);
+                let vb = msgSortCol === 'id' ? b.id : msgSortCol === 'name' ? (b.name||'') : new Date(b.created_at||0);
+                return va > vb ? msgSortDir : va < vb ? -msgSortDir : 0;
+            });
+            renderMessages(data);
+        }
+
+        function sortMessages(col) {
+            if (msgSortCol === col) msgSortDir *= -1; else { msgSortCol = col; msgSortDir = -1; }
+            document.querySelectorAll('#messagesTableEl thead th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.col === col) th.classList.add(msgSortDir === 1 ? 'sort-asc' : 'sort-desc');
+            });
+            filterMessages();
+        }
+
+        function renderMessages(data) {
+            const tbody = document.getElementById('messagesTable');
+            const countEl = document.getElementById('msgCount');
+            if (countEl) countEl.innerHTML = `<strong>${data.length}</strong> message${data.length === 1 ? '' : 's'}`;
+            if (!tbody) return;
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="table-empty"><i class="fas fa-inbox"></i><p>No messages found</p></td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(msg => {
+                const d = msg.created_at ? new Date(msg.created_at) : null;
+                const dateStr = d ? d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+                return `<tr>
+                    <td style="color:rgba(255,255,255,0.4);font-size:12px;">#${msg.id}</td>
+                    <td>
+                        <div class="customer-cell">
+                            <span class="customer-name">${msg.name || '—'}</span>
+                            <span class="customer-phone">${msg.phone || ''}</span>
+                        </div>
+                    </td>
+                    <td><span style="text-transform:capitalize;font-size:13px;">${(msg.service_type||'—').replace(/_/g,' ')}</span></td>
+                    <td class="date-cell">${dateStr}</td>
+                    <td>${statusBadge(msg.status || 'unread')}</td>
+                    <td>
+                        <div class="btn-actions">
+                            <button class="action-btn action-btn-view" title="View" onclick="viewMsgDetail(${msg.id})"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn action-btn-mark" title="Mark as Read" onclick="markMsgRead(${msg.id})"><i class="fas fa-check"></i></button>
+                            <button class="action-btn action-btn-delete" title="Delete" onclick="deleteMsg(${msg.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function markMsgRead(id) {
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/messages/${id}/status`, { 
+                    method: 'PUT', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'read' }),
+                    credentials: 'include' 
+                });
+                if(res.ok) {
+                    const msg = messagesData.find(m => m.id === id);
+                    if (msg) { msg.status = 'read'; filterMessages(); }
+                    showNotification('Marked as read', 'success');
+                } else {
+                    showNotification('Failed to update', 'error');
+                }
+            } catch { showNotification('Failed to update', 'error'); }
+        }
+
+        async function deleteMsg(id) {
+            if (!confirm('Delete this message?')) return;
+            try {
+                const r = await fetch(`${API_BASE}/api/admin/messages/${id}`, { method: 'DELETE', credentials: 'include' });
+                const data = await r.json();
+                if (data.success) { messagesData = messagesData.filter(m => m.id !== id); filterMessages(); showNotification('Message deleted', 'success'); }
+                else showNotification(data.message || 'Delete failed', 'error');
+            } catch { showNotification('Delete failed', 'error'); }
+        }
+
+        function viewMsgDetail(id) {
+            const msg = messagesData.find(m => m.id === id);
+            if (!msg) return;
+            const d = msg.created_at ? new Date(msg.created_at).toLocaleString('en-IN') : '—';
+            alert(`From: ${msg.name}\nPhone: ${msg.phone||'—'}\nService: ${msg.service_type||'—'}\nDate: ${d}\nMessage: ${msg.message||'(no message)'}`);
+        }
+
+        // ── Premium Requests Loader ─────────────────────────────
         async function loadServiceRequests() {
+            const tbody = document.getElementById('requestsTable');
+            if (tbody) tbody.innerHTML = '<tr class="loading-rows"><td colspan="6"><span class="spinner-sm"></span>Loading requests…</td></tr>';
             try {
-                const response = await fetch(`${API_BASE}/admin/requests`, { credentials: 'include' });
-                const data = await response.json();
-                
+                const res = await fetch(`${API_BASE}${API_ENDPOINTS.REQUESTS}?limit=200`, { credentials: 'include' });
+                const data = await res.json();
                 if (data.success) {
-                    const tbody = document.getElementById('requestsTable');
-                    tbody.innerHTML = data.data.map(req => `
-                        <tr>
-                            <td>${req.id}</td>
-                            <td>${req.name}</td>
-                            <td>${req.phone}</td>
-                            <td>${req.service_type}</td>
-                            <td>${new Date(req.created_at).toLocaleDateString()}</td>
-                            <td><span class="status-badge ${req.status === 'Pending' ? 'status-active' : ''}">${req.status}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="viewRequest(${req.id})">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    requestsData = data.data;
+                    filterRequests();
+                } else {
+                    renderReqError('Failed: ' + (data.message || 'Unknown error'));
                 }
-            } catch (error) {
-                console.error('Failed to load requests:', error);
+            } catch (e) {
+                renderReqError('Backend is offline or unreachable.');
             }
         }
 
-        // View Message - Already implemented in admin-management.js
-        // function viewMessage(id) - REMOVED (duplicate)
+        function renderReqError(msg) {
+            const tbody = document.getElementById('requestsTable');
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="table-error"><div class="table-error-card"><i class="fas fa-plug"></i><p>${msg}</p><small>Check that Flask backend is running on port 5000</small></div></td></tr>`;
+        }
 
-        // View Request - Already implemented in admin-management.js  
-        // function viewRequest(id) - REMOVED (duplicate)
+        function filterRequests() {
+            const q = (document.getElementById('reqSearch')?.value || '').toLowerCase();
+            const sf = document.getElementById('reqStatusFilter')?.value || 'all';
+            let data = [...requestsData];
+            if (q) data = data.filter(r => (r.customer_name||'').toLowerCase().includes(q) || (r.customer_phone||'').includes(q) || (r.service_type||'').toLowerCase().includes(q));
+            if (sf !== 'all') data = data.filter(r => (r.request_status||r.status||'') === sf);
+            data.sort((a, b) => {
+                let va = reqSortCol === 'id' ? a.id : reqSortCol === 'name' ? (a.customer_name||'') : new Date(a.created_at||0);
+                let vb = reqSortCol === 'id' ? b.id : reqSortCol === 'name' ? (b.customer_name||'') : new Date(b.created_at||0);
+                return va > vb ? reqSortDir : va < vb ? -reqSortDir : 0;
+            });
+            renderRequests(data);
+        }
+
+        function sortRequests(col) {
+            if (reqSortCol === col) reqSortDir *= -1; else { reqSortCol = col; reqSortDir = -1; }
+            document.querySelectorAll('#requestsTableEl thead th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.col === col) th.classList.add(reqSortDir === 1 ? 'sort-asc' : 'sort-desc');
+            });
+            filterRequests();
+        }
+
+        function renderRequests(data) {
+            const tbody = document.getElementById('requestsTable');
+            const countEl = document.getElementById('reqCount');
+            if (countEl) countEl.innerHTML = `<strong>${data.length}</strong> request${data.length === 1 ? '' : 's'}`;
+            if (!tbody) return;
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="table-empty"><i class="fas fa-tools"></i><p>No requests found</p></td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(req => {
+                const status = req.request_status || req.status || 'Pending';
+                const d = req.created_at ? new Date(req.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+                return `<tr>
+                    <td style="color:rgba(255,255,255,0.4);font-size:12px;">#${req.id}</td>
+                    <td>
+                        <div class="customer-cell">
+                            <span class="customer-name">${req.customer_name || req.name || '—'}</span>
+                            <span class="customer-phone">${req.customer_phone || req.phone || ''}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="text-transform:capitalize;font-size:13px;">${(req.service_type||'—').replace(/_/g,' ')}</span>
+                        ${req.ac_type && req.ac_type !== 'Not Specified' ? `<br><span style="font-size:11px;color:rgba(255,255,255,0.4)">${req.ac_type}</span>` : ''}
+                    </td>
+                    <td class="date-cell">${d}</td>
+                    <td>
+                        <select class="status-select" onchange="updateReqStatus(${req.id}, this.value)">
+                            <option ${status==='Pending'?'selected':''}>Pending</option>
+                            <option ${status==='In Progress'?'selected':''}>In Progress</option>
+                            <option ${status==='Completed'?'selected':''}>Completed</option>
+                            <option ${status==='Cancelled'?'selected':''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="btn-actions">
+                            <button class="action-btn action-btn-delete" title="Delete" onclick="deleteRequest(${req.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function updateReqStatus(id, newStatus) {
+            try {
+                const r = await fetch(`${API_BASE}/api/admin/requests/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus }),
+                    credentials: 'include'
+                });
+                const data = await r.json();
+                if (data.success) {
+                    const req = requestsData.find(r => r.id === id);
+                    if (req) req.request_status = newStatus;
+                    showNotification('Status updated to ' + newStatus, 'success');
+                    loadDashboardStats();
+                } else {
+                    showNotification(data.message || 'Update failed', 'error');
+                }
+            } catch { showNotification('Update failed — backend offline?', 'error'); }
+        }
+
+        async function deleteRequest(id) {
+            if (!confirm('Delete this service request?')) return;
+            try {
+                const r = await fetch(`${API_BASE}/api/admin/requests/${id}`, { method: 'DELETE', credentials: 'include' });
+                const data = await r.json();
+                if (data.success) { requestsData = requestsData.filter(r => r.id !== id); filterRequests(); showNotification('Request deleted', 'success'); }
+                else showNotification(data.message || 'Delete failed', 'error');
+            } catch { showNotification('Delete failed', 'error'); }
+        }
+
+        // View Request/Message legacy stubs
+        function viewRequest(id) { /* handled by action buttons */ }
+        function viewMessage(id) { viewMsgDetail(id); }
 
         // ==================== PREVIEW ====================
         function openPreview() {
-            document.getElementById('previewModal').classList.add('active');
+            document.getElementById('previewModal')?.classList.add('active');
         }
 
         function closePreview() {
-            document.getElementById('previewModal').classList.remove('active');
+            document.getElementById('previewModal')?.classList.remove('active');
         }
+
+        // ── Mobile Sidebar Toggle ──────────────────────────────
+        (function setupSidebarMobile() {
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('mainSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!toggle || !sidebar) return;
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                if (overlay) overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+
+            toggle.addEventListener('click', () => {
+                sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+            });
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+
+            // Close on nav item click (mobile)
+            sidebar.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 1024) closeSidebar();
+                });
+            });
+        })();
     </script>
 </body>
 </html>
+

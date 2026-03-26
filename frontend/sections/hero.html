@@ -1,19 +1,31 @@
 <!-- ========================================
      HERO SECTION
-     Premium Hero with Strong CTAs
+     Premium Hero with Auto-Rotating Image Slideshow
 ======================================== -->
 <section id="home" class="hero-section">
-    <!-- Background Image with Overlay (Lazy Loading) -->
-    <img data-src="https://images.unsplash.com/photo-1581094271901-8022df4466f9?q=80&w=2070&auto=format&fit=crop"
-         alt="HVAC Technician Working"
-         class="lazy">
 
-    <!-- Animated Overlay -->
+    <!-- ===== BACKGROUND IMAGE SLIDESHOW ===== -->
+    <div class="hero-slider" id="heroSlider">
+        <div class="hero-slide active" style="background-image: url('assets/images/hero-slide-1.jpg')"></div>
+        <div class="hero-slide" style="background-image: url('assets/images/hero-slide-2.jpg')"></div>
+        <div class="hero-slide" style="background-image: url('assets/images/hero-slide-3.jpg')"></div>
+    </div>
+
+    <!-- Dark overlay for text readability -->
     <div class="hero-overlay"></div>
 
-    <div class="container">
+    <!-- Slide indicators (dots) -->
+    <div class="hero-indicators" id="heroIndicators">
+        <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+        <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+        <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+    </div>
+
+    <!-- ===== HERO CONTENT ===== -->
+    <div class="container hero-content-wrapper">
         <div class="row align-items-center">
             <div class="col-lg-9" data-aos="fade-right" data-aos-duration="1000">
+
                 <!-- Badge -->
                 <div class="hero-badge mb-3" data-aos="zoom-in" data-aos-delay="200">
                     <i class="fas fa-award me-2"></i>#1 AC Service Provider in Mumbai
@@ -21,7 +33,7 @@
 
                 <!-- Main Headline -->
                 <h1 class="hero-title" data-aos="fade-up" data-aos-delay="400">
-                    Professional AC Service & Installation at Your Doorstep
+                    Professional AC Service &amp; Installation at Your Doorstep
                 </h1>
 
                 <!-- Subheadline -->
@@ -62,4 +74,100 @@
             </div>
         </div>
     </div>
+
+    <!-- Prev / Next Arrows -->
+    <button class="hero-arrow hero-arrow-prev" id="heroPrev" aria-label="Previous slide">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="hero-arrow hero-arrow-next" id="heroNext" aria-label="Next slide">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
 </section>
+
+<!-- ===== HERO SLIDER SCRIPT ===== -->
+<script>
+(function() {
+    'use strict';
+
+    const SLIDE_DURATION = 4000; // 4 seconds per slide
+    const TRANSITION_DURATION = 1200; // 1.2s crossfade
+
+    let currentSlide = 0;
+    let slideTimer = null;
+    let isTransitioning = false;
+
+    const slider = document.getElementById('heroSlider');
+    const slides = slider ? slider.querySelectorAll('.hero-slide') : [];
+    const dots = document.querySelectorAll('.hero-dot');
+    const prevBtn = document.getElementById('heroPrev');
+    const nextBtn = document.getElementById('heroNext');
+
+    if (!slides.length) return;
+
+    function goToSlide(index) {
+        if (isTransitioning || index === currentSlide) return;
+        isTransitioning = true;
+
+        // Remove active from current
+        slides[currentSlide].classList.remove('active');
+        dots[currentSlide].classList.remove('active');
+
+        // Set new slide
+        currentSlide = (index + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+
+        setTimeout(() => { isTransitioning = false; }, TRANSITION_DURATION);
+    }
+
+    function nextSlide() {
+        goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+        goToSlide(currentSlide - 1);
+    }
+
+    function startAutoPlay() {
+        stopAutoPlay();
+        slideTimer = setInterval(nextSlide, SLIDE_DURATION);
+    }
+
+    function stopAutoPlay() {
+        if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
+    }
+
+    // Dot click
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => { goToSlide(i); startAutoPlay(); });
+    });
+
+    // Arrow clicks
+    if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); startAutoPlay(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); startAutoPlay(); });
+
+    // Pause on hover (good UX!)
+    const heroSection = document.getElementById('home');
+    if (heroSection) {
+        heroSection.addEventListener('mouseenter', stopAutoPlay);
+        heroSection.addEventListener('mouseleave', startAutoPlay);
+    }
+
+    // Touch / Swipe support for mobile
+    let touchStartX = 0;
+    if (slider) {
+        slider.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+        slider.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+                diff > 0 ? nextSlide() : prevSlide();
+                startAutoPlay();
+            }
+        }, { passive: true });
+    }
+
+    // Start!
+    startAutoPlay();
+})();
+</script>

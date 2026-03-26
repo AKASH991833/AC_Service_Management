@@ -1,32 +1,32 @@
 /**
  * Dynamic Content Loader
- * Loads website content from Admin Panel API
+ * Loads website content from backend API
  * Makes all sections dynamic and editable from admin
- * 
- * NOTE: This uses admin endpoints which require authentication.
- * For production, create separate public API endpoints.
+ *
+ * SECURITY: Uses session-based authentication for admin content
+ * Public content does not require authentication
  */
 
 const DynamicContent = (function() {
     'use strict';
 
     // API Configuration - with proper fallbacks
-    const API_BASE = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BASE_URL) || 
-                     (typeof FRONTEND_SETTINGS !== 'undefined' && FRONTEND_SETTINGS.API_BASE_URL) || 
+    const API_BASE = (typeof API_CONFIG !== 'undefined' && API_CONFIG.BASE_URL) ||
+                     (typeof FRONTEND_SETTINGS !== 'undefined' && FRONTEND_SETTINGS.API_BASE_URL) ||
                      'http://localhost:5000';
-    const API_KEY = (typeof API_CONFIG !== 'undefined' && API_CONFIG.API_KEY) || 
-                    (typeof FRONTEND_SETTINGS !== 'undefined' && FRONTEND_SETTINGS.API_KEY) || 
-                    'ansh_aircool_website_key_2026';
+    
+    // NO API_KEY - using session-based authentication
 
     /**
      * Safe API fetch with error handling
+     * SECURITY: Session-based auth via cookies
      */
     async function safeFetch(endpoint) {
         try {
             const response = await fetch(`${API_BASE}${endpoint}`, {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-KEY': API_KEY
+                    'Content-Type': 'application/json'
+                    // NO API_KEY - using session-based authentication
                 },
                 credentials: 'include',
                 signal: AbortSignal.timeout(5000) // 5 second timeout
@@ -51,8 +51,8 @@ const DynamicContent = (function() {
     async function loadHeroSection() {
         try {
             const result = await safeFetch('/api/admin-full/section/hero');
-            
-            if (result && result.data) {
+
+            if (result && result.success && result.data) {
                 const data = result.data || {};
 
                 // Update Hero Section
@@ -77,8 +77,8 @@ const DynamicContent = (function() {
     async function loadServices() {
         try {
             const result = await safeFetch('/api/admin-full/section/services');
-            
-            if (result && result.data && result.data.length > 0) {
+
+            if (result && result.success && result.data && result.data.length > 0) {
                 const services = result.data || [];
 
                 if (services.length > 0) {
@@ -95,14 +95,14 @@ const DynamicContent = (function() {
                                         <div class="service-icon">
                                             <i class="${service.icon_class || 'fas fa-tools'}"></i>
                                         </div>
-                                        <h3 class="service-title">${service.service_name}</h3>
+                                        <h3 class="service-title">${service.service_name || 'Service'}</h3>
                                         <p class="service-description">${service.description || ''}</p>
                                         <div class="service-features">
                                             ${features.map(f => `<span class="feature-tag">${f}</span>`).join('')}
                                         </div>
                                         <div class="service-footer">
                                             <span class="service-price">${service.starting_price || '₹0'}</span>
-                                            <button class="service-btn" data-service="${service.service_slug}">
+                                            <button class="service-btn" data-service="${service.service_slug || ''}">
                                                 Book Now <i class="fas fa-arrow-right"></i>
                                             </button>
                                         </div>
@@ -125,8 +125,8 @@ const DynamicContent = (function() {
     async function loadProducts() {
         try {
             const result = await safeFetch('/api/admin-full/section/products');
-            
-            if (result && result.data && result.data.length > 0) {
+
+            if (result && result.success && result.data && result.data.length > 0) {
                 const products = result.data || [];
 
                 if (products.length > 0) {
@@ -158,8 +158,8 @@ const DynamicContent = (function() {
      * Create product card HTML
      */
     function createProductCard(product) {
-        const features = typeof product.features === 'string' 
-            ? JSON.parse(product.features) 
+        const features = typeof product.features === 'string'
+            ? JSON.parse(product.features)
             : (product.features || []);
 
         return `
@@ -167,11 +167,11 @@ const DynamicContent = (function() {
                 <div class="product-card glass-card">
                     ${product.badge_text ? `<div class="product-badge">${product.badge_text}</div>` : ''}
                     <div class="product-image">
-                        <img src="${product.product_image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500'}" 
-                             alt="${product.product_name}" class="lazy">
+                        <img src="${product.product_image || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500'}"
+                             alt="${product.product_name || 'Product'}" class="lazy">
                     </div>
                     <div class="product-details">
-                        <h3 class="product-name">${product.product_name}</h3>
+                        <h3 class="product-name">${product.product_name || 'Product'}</h3>
                         <div class="product-specs">
                             <span><i class="fas fa-snowflake"></i> ${product.capacity || '1.5 Ton'}</span>
                             <span><i class="fas fa-star"></i> ${product.star_rating || '5'} Star</span>
@@ -182,9 +182,9 @@ const DynamicContent = (function() {
                         </ul>
                         <div class="product-footer">
                             <div class="product-price">${product.price || '₹0'}</div>
-                            <button class="product-btn ${product.product_type}-btn" 
-                                    data-product="${product.product_name}" 
-                                    data-type="${product.product_type}">
+                            <button class="product-btn ${product.product_type === 'buy' ? 'buy' : 'rent'}-btn"
+                                    data-product="${product.product_name || ''}"
+                                    data-type="${product.product_type || 'buy'}">
                                 ${product.product_type === 'buy' ? 'Buy Now' : 'Rent Now'}
                             </button>
                         </div>
@@ -200,8 +200,8 @@ const DynamicContent = (function() {
     async function loadTestimonials() {
         try {
             const result = await safeFetch('/api/admin-full/section/testimonials');
-            
-            if (result && result.data && result.data.length > 0) {
+
+            if (result && result.success && result.data && result.data.length > 0) {
                 const testimonials = result.data || [];
 
                 if (testimonials.length > 0) {
@@ -209,11 +209,11 @@ const DynamicContent = (function() {
                     if (testimonialsContainer) {
                         testimonialsContainer.innerHTML = testimonials.map(t => `
                             <div class="testimonial-card glass-card" data-aos="fade-up">
-                                <div class="testimonial-rating">${'⭐'.repeat(t.rating)}</div>
-                                <p class="testimonial-text">"${t.review_text}"</p>
+                                <div class="testimonial-rating">${'⭐'.repeat(t.rating || 5)}</div>
+                                <p class="testimonial-text">"${t.review_text || ''}"</p>
                                 <div class="testimonial-author">
                                     <div class="author-info">
-                                        <h4>${t.customer_name}</h4>
+                                        <h4>${t.customer_name || 'Customer'}</h4>
                                         <p>${t.customer_location || 'Happy Customer'}</p>
                                     </div>
                                 </div>
@@ -234,8 +234,8 @@ const DynamicContent = (function() {
     async function loadFeatures() {
         try {
             const result = await safeFetch('/api/admin-full/section/features');
-            
-            if (result && result.data) {
+
+            if (result && result.success && result.data) {
                 const data = result.data || {};
 
                 // Update section title and subtitle
@@ -258,7 +258,7 @@ const DynamicContent = (function() {
                                 <div class="feature-icon">
                                     <i class="${f.icon || 'fas fa-check-circle'}"></i>
                                 </div>
-                                <h3>${f.title}</h3>
+                                <h3>${f.title || ''}</h3>
                                 <p>${f.description || ''}</p>
                             </div>
                         `).join('');
@@ -278,8 +278,8 @@ const DynamicContent = (function() {
     async function loadStats() {
         try {
             const result = await safeFetch('/api/admin-full/section/stats');
-            
-            if (result && result.data) {
+
+            if (result && result.success && result.data) {
                 const data = result.data || {};
 
                 // Update stats
@@ -287,12 +287,6 @@ const DynamicContent = (function() {
                 updateStat('services_count', data.services_count);
                 updateStat('experience_count', data.experience_count);
                 updateStat('technicians_count', data.technicians_count);
-
-                // Update labels
-                updateStatLabel('customers_label', data.customers_label);
-                updateStatLabel('services_label', data.services_label);
-                updateStatLabel('experience_label', data.experience_label);
-                updateStatLabel('technicians_label', data.technicians_label);
 
                 console.log('✅ Stats loaded from API');
             }
@@ -313,20 +307,13 @@ const DynamicContent = (function() {
     }
 
     /**
-     * Update stat label
-     */
-    function updateStatLabel(elementId, value) {
-        // Stats labels are usually in the HTML, can be updated if needed
-    }
-
-    /**
      * Load Contact Info from API
      */
     async function loadContactInfo() {
         try {
             const result = await safeFetch('/api/admin-full/section/contact');
-            
-            if (result && result.data) {
+
+            if (result && result.success && result.data) {
                 const data = result.data || {};
 
                 // Update phone

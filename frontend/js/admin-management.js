@@ -15,18 +15,20 @@
  */
 
 // ========================================
-// API CONFIGURATION - Use centralized config
+// API CONFIGURATION - Session-Based Auth
+// ========================================
+// SECURITY: Using session-based authentication (cookies)
+// NO hardcoded API keys in frontend code
 // ========================================
 const ADMIN_API = {
     // Direct fallback to prevent undefined errors
-    BASE_URL: (typeof API_CONFIG !== 'undefined' && API_CONFIG.BASE_URL) || 
-              (typeof FRONTEND_SETTINGS !== 'undefined' && FRONTEND_SETTINGS.API_BASE_URL) || 
+    BASE_URL: (typeof API_CONFIG !== 'undefined' && API_CONFIG.BASE_URL) ||
+              (typeof FRONTEND_SETTINGS !== 'undefined' && FRONTEND_SETTINGS.API_BASE_URL) ||
               'http://localhost:5000',
-    
-    API_KEY: (typeof API_CONFIG !== 'undefined' && API_CONFIG.API_KEY) || 
-             (typeof FRONTEND_SETTINGS !== 'undefined' && FRONTEND_SETTINGS.API_KEY) || 
-             'ansh_aircool_website_key_2026',
-    
+
+    // NO API_KEY - using session-based authentication
+    // Admin authentication is handled via secure session cookies
+
     ENDPOINTS: {
         // Auth
         LOGIN: '/api/admin/login',
@@ -179,41 +181,66 @@ function setAdminButtonLoading(button, isLoading) {
 
 /**
  * Generic API request helper
+ * SECURITY: Uses session-based authentication (cookies)
+ * NO API_KEY required
  */
 async function adminRequest(endpoint, options = {}) {
     const url = `${ADMIN_API.BASE_URL}${endpoint}`;
-    
+
     adminDebugLog('📡 Request:', endpoint);
     adminDebugLog('📍 URL:', url);
-    adminDebugLog('🔑 API_KEY:', ADMIN_API.API_KEY);
+    adminDebugLog('🔐 Auth: Session-based (cookies)');
 
     const defaultOptions = {
         headers: {
-            'Content-Type': 'application/json',
-            'X-API-KEY': ADMIN_API.API_KEY
+            'Content-Type': 'application/json'
+            // NO API_KEY - using session-based authentication
         },
-        credentials: 'include'
+        credentials: 'include'  // Include cookies for session auth
     };
 
     const config = { ...defaultOptions, ...options };
 
     try {
         adminDebugLog('🚀 Fetching...');
+
+        // First try with OPTIONS preflight for CORS
+        if (options.method && options.method !== 'GET') {
+            const optionsResponse = await fetch(url, {
+                method: 'OPTIONS',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Request-Method': options.method
+                }
+            });
+
+            if (!optionsResponse.ok) {
+                adminDebugLog('⚠️ OPTIONS preflight failed:', optionsResponse.status);
+            }
+        }
+
         const response = await fetch(url, config);
-        
+
         adminDebugLog('📥 Response status:', response.status);
 
         if (!response.ok) {
             const errorText = await response.text();
             adminDebugLog('❌ Error response:', errorText);
-            
+
             let error;
             try {
                 error = JSON.parse(errorText);
             } catch {
                 error = { message: errorText || `HTTP ${response.status}` };
             }
-            
+
+            // Handle session expiration (401)
+            if (response.status === 401) {
+                // Clear any cached admin data
+                currentAdmin = null;
+                throw new Error(`401 Unauthorized - ${error.message || 'Session expired'}`);
+            }
+
             throw new Error(error.message || `HTTP ${response.status}`);
         }
 
@@ -398,12 +425,25 @@ async function checkAuth() {
     try {
         adminDebugLog('Checking admin authentication...');
         const response = await adminRequest(ADMIN_API.ENDPOINTS.ME, { method: 'GET' });
-        
+
         currentAdmin = response.data;
         adminDebugLog('Admin authenticated:', currentAdmin?.username);
         showDashboard();
     } catch (error) {
         adminDebugLog('Not authenticated or error:', error.message);
+        
+        // Only show toast if we're already on dashboard (not on login page)
+        // Don't show "Session expired" on login page itself
+        const loginPage = document.getElementById('login-page');
+        if (loginPage && !loginPage.classList.contains('d-none')) {
+            // We're on login page, just stay here (no toast)
+        } else {
+            // We're on dashboard, show session expired message
+            if (error.message && error.message.includes('401')) {
+                showAdminToast('Session expired. Please login again.', 'error');
+            }
+        }
+        
         showLoginPage();
     }
 }
@@ -567,8 +607,8 @@ async function handleLogin(e) {
         const response = await fetch(`${ADMIN_API.BASE_URL}${ADMIN_API.ENDPOINTS.LOGIN}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-API-KEY': ADMIN_API.API_KEY
+                'Content-Type': 'application/json'
+                // NO API_KEY - using session-based authentication
             },
             credentials: 'include',
             body: JSON.stringify({ username: sanitizedUsername, password })
@@ -1650,7 +1690,8 @@ async function handleImageUpload(e) {
         const response = await fetch(`${ADMIN_API.BASE_URL}${ADMIN_API.ENDPOINTS.GALLERY}`, {
             method: 'POST',
             headers: {
-                'X-API-KEY': ADMIN_API.API_KEY
+                // NO API_KEY - using session-based authentication
+                // Content-Type will be set automatically by browser for FormData
             },
             credentials: 'include',
             body: formData
@@ -1794,23 +1835,29 @@ async function updateAdminProfile() {
         email: document.getElementById('profileEmail')?.value,
         phone: document.getElementById('profilePhone')?.value
     };
-    
+
     // Validation
     if (!data.full_name || !data.email) {
         showAdminToast('Please fill required fields', 'error');
         return;
     }
-    
+
     try {
         await adminRequest('/api/admin/profile', {
             method: 'PUT',
             body: JSON.stringify(data)
         });
-        
+
         showAdminToast('Profile updated successfully', 'success');
+        
+        // Update displayed name
+        const adminNameEl = document.getElementById('adminName');
+        if (adminNameEl && data.full_name) {
+            adminNameEl.textContent = data.full_name;
+        }
     } catch (error) {
         adminDebugLog('Update profile error:', error);
-        showAdminToast('Failed to update profile', 'error');
+        showAdminToast(error.message || 'Failed to update profile', 'error');
     }
 }
 
@@ -1844,35 +1891,35 @@ async function changeAdminPassword() {
         new_password: document.getElementById('newPassword')?.value,
         confirm_password: document.getElementById('confirmPassword')?.value
     };
-    
+
     // Validation
     if (!data.current_password || !data.new_password) {
         showAdminToast('Please fill all password fields', 'error');
         return;
     }
-    
+
     if (data.new_password.length < 6) {
         showAdminToast('New password must be at least 6 characters', 'error');
         return;
     }
-    
+
     if (data.new_password !== data.confirm_password) {
         showAdminToast('New passwords do not match', 'error');
         return;
     }
-    
+
     try {
         const result = await adminRequest('/api/admin/change-password', {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        
+
         // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
         if (modal) modal.hide();
-        
+
         showAdminToast(result.message || 'Password changed successfully', 'success');
-        
+
         // Clear form
         const els = {
             currentPassword: document.getElementById('currentPassword'),
@@ -1880,7 +1927,7 @@ async function changeAdminPassword() {
             confirmPassword: document.getElementById('confirmPassword')
         };
         Object.values(els).forEach(el => { if (el) el.value = ''; });
-        
+
     } catch (error) {
         adminDebugLog('Change password error:', error);
         const errorMsg = error.message || 'Failed to change password';

@@ -1,34 +1,8 @@
 /* ========================================
    ANSH AIR COOL - MAIN STYLESHEET
    Professional AC Service Website
+   NOTE: CSS variables are in variables.css
 ======================================== */
-
-/* ========================================
-   CSS VARIABLES
-======================================== */
-:root {
-    --primary-bg: #0C0E1D;
-    --secondary-gradient: #211F36;
-    --soft-accent: #616083;
-    --primary-glow: #FF81FF;
-    --success-accent: #51FAAA;
-    --soft-purple: #AB7DE3;
-    --font-primary: 'Poppins', sans-serif;
-
-    /* Enhanced Animation Variables */
-    --glow-intensity: 1;
-    --animation-speed: 1;
-    
-    /* New Enhanced Colors */
-    --cyan-glow: #00F5FF;
-    --pink-glow: #FF0080;
-    --gold-accent: #FFD700;
-    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    --gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-}
 
 /* ========================================
    GLOBAL RESET & BASE STYLES
@@ -669,7 +643,9 @@ body {
    (Extracted from inline styles)
 ======================================== */
 
-/* Hero Section Styles */
+/* ============================================
+   HERO SECTION — Premium Image Slider
+   ============================================ */
 .hero-section {
     min-height: 100vh;
     display: flex;
@@ -679,20 +655,124 @@ body {
     padding-top: 80px;
 }
 
-.hero-section img {
+/* ---- Slider Container ---- */
+.hero-slider {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.15;
+    inset: 0;
     z-index: 0;
 }
 
+/* ---- Individual Slides ---- */
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transform: scale(1.08);
+    transition: opacity 1.2s ease-in-out, transform 0s;
+    will-change: opacity, transform;
+}
+
+/* Active slide: fade in + Ken Burns zoom out */
+.hero-slide.active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 1.2s ease-in-out, transform 5s ease-out;
+}
+
+/* ---- Dark gradient overlay ---- */
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+        135deg,
+        rgba(8, 10, 30, 0.80) 0%,
+        rgba(12, 14, 29, 0.60) 50%,
+        rgba(8, 10, 30, 0.75) 100%
+    );
+}
+
+/* ---- Content sits above overlay ---- */
+.hero-content-wrapper {
+    position: relative;
+    z-index: 3;
+}
+
+/* ---- Slide Indicator Dots ---- */
+.hero-indicators {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.hero-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    padding: 0;
+    outline: none;
+}
+
+.hero-dot.active {
+    width: 28px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #FF81FF, #AB7DE3);
+    border-color: transparent;
+}
+
+.hero-dot:hover:not(.active) {
+    background: rgba(255,255,255,0.4);
+    border-color: white;
+}
+
+/* ---- Prev / Next Arrow Buttons ---- */
+.hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+.hero-arrow:hover {
+    background: rgba(171, 125, 227, 0.35);
+    border-color: #AB7DE3;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 20px rgba(171, 125, 227, 0.4);
+}
+
+.hero-arrow-prev { left: 20px; }
+.hero-arrow-next { right: 20px; }
+
+/* ---- Text Styles ---- */
 .hero-section .container {
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 
 .hero-section h1 {
@@ -708,9 +788,17 @@ body {
 
 .hero-section p {
     font-size: 1.3rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.85);
     margin-bottom: 2.5rem;
     font-weight: 300;
+}
+
+/* ---- Mobile: hide arrows, smaller dots ---- */
+@media (max-width: 576px) {
+    .hero-arrow { display: none; }
+    .hero-indicators { bottom: 20px; }
+    .hero-dot { width: 8px; height: 8px; }
+    .hero-dot.active { width: 22px; }
 }
 
 /* Services Section Styles */
@@ -1322,12 +1410,7 @@ html {
     transition: all 0.3s ease;
 }
 
-/* Don't override button hover effects - let individual button classes handle them */
-.hero-section .btn-primary-glow:hover,
-.hero-section .btn-outline-glow:hover,
-.hero-section .btn-secondary-glow:hover {
-    /* Individual button hover effects will apply */
-}
+/* Individual button hover effects are handled by their own class rules */
 
 /* Contact form animation */
 .contact-form {
@@ -3666,4 +3749,558 @@ img[data-src].loaded {
 
 .api-toast i {
     font-size: 1.1rem;
+}
+
+/* ========================================
+   CRITICAL BUG FIXES - AUDIT 2026
+   Fix all identified visual issues
+======================================== */
+
+/* ---- FIX 1: Contact Form Input Visibility ---- */
+.contact-form .form-control,
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form select,
+.contact-form textarea {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    padding: 0.85rem 1rem !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.contact-form .form-control:focus,
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: #FF81FF !important;
+    box-shadow: 0 0 0 3px rgba(255, 129, 255, 0.2) !important;
+    outline: none !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+.contact-form .form-control::placeholder,
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.contact-form select option {
+    background: #1a1a2e !important;
+    color: #ffffff !important;
+}
+
+/* Autocomplete fix */
+.contact-form input:-webkit-autofill,
+.contact-form input:-webkit-autofill:hover,
+.contact-form input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px rgba(42, 40, 72, 0.9) inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ---- FIX 2: Service Card Images ---- */
+.service-card .service-image-wrapper {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    background: linear-gradient(135deg, rgba(81, 250, 170, 0.1), rgba(171, 125, 227, 0.1));
+}
+
+.service-card .service-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.service-card:hover .service-image-wrapper img {
+    transform: scale(1.08);
+}
+
+.service-card .service-content {
+    padding: 1.5rem;
+}
+
+.service-card .icon-container {
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.service-card .icon-container i {
+    font-size: 1.4rem;
+    color: #ffffff;
+}
+
+.service-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+}
+
+.service-card .service-price {
+    margin: 0.5rem 0;
+}
+
+.service-card .service-price .price-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+}
+
+.service-card .service-price .price-amount {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF81FF, #51FAAA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.service-card .service-duration {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+}
+
+.service-card .service-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.8rem 0 1rem;
+}
+
+.service-card .service-features-list li {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.88rem;
+    margin-bottom: 0.4rem;
+}
+
+.service-card .service-features-list li i {
+    color: #51FAAA;
+    margin-right: 0.5rem;
+}
+
+.service-card .service-btn {
+    display: block;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* ---- FIX 3: Product Card Images ---- */
+.product-card {
+    overflow: hidden;
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card > img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover > img {
+    transform: scale(1.05);
+}
+
+.product-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0.8rem 0 0.4rem;
+    padding: 0 1.2rem;
+}
+
+.product-card .stars {
+    color: #FFD700;
+    padding: 0 1.2rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.product-card .price {
+    padding: 0 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.product-card .price .price-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+}
+
+.product-card .price.buy {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF81FF, #51FAAA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.product-card .price.rent {
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #51FAAA, #AB7DE3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.product-card .price small {
+    font-size: 0.8rem;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
+
+.product-card .description {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.88rem;
+    padding: 0 1.2rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.5;
+}
+
+.product-card .product-features-list {
+    list-style: none;
+    padding: 0 1.2rem;
+    margin: 0 0 1rem;
+}
+
+.product-card .product-features-list li {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+}
+
+.product-card .product-btn {
+    display: block;
+    margin: 0 1rem 1rem;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.product-card .product-specs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    flex-wrap: wrap;
+}
+
+.product-card .product-specs .spec-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.product-card .product-specs .spec-item i {
+    font-size: 0.7rem;
+    color: #51FAAA;
+}
+
+/* ---- FIX 4: Hero Section Background ---- */
+.hero-section {
+    background: linear-gradient(135deg, #0C0E1D 0%, #1a0a2e 50%, #0C0E1D 100%) !important;
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(171, 125, 227, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(81, 250, 170, 0.1) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 80%, rgba(255, 129, 255, 0.08) 0%, transparent 40%);
+    z-index: 0;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-overlay {
+    display: none;
+}
+
+/* ---- FIX 5: View More Button ---- */
+.view-more-button {
+    background: transparent !important;
+    border: 2px solid rgba(255, 129, 255, 0.5) !important;
+    color: #FF81FF !important;
+    padding: 0.85rem 2.5rem !important;
+    border-radius: 50px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.35s ease !important;
+    cursor: pointer !important;
+}
+
+.view-more-button:hover {
+    background: rgba(255, 129, 255, 0.15) !important;
+    border-color: #FF81FF !important;
+    box-shadow: 0 0 30px rgba(255, 129, 255, 0.4) !important;
+    transform: translateY(-3px) !important;
+}
+
+/* ---- FIX 6: Service Features Row ---- */
+.service-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.service-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.service-feature-item i {
+    color: #51FAAA;
+}
+
+/* ---- FIX 7: Product Badge ---- */
+.product-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    color: #ffffff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    z-index: 10;
+    letter-spacing: 0.02em;
+}
+
+.product-badge.premium {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+}
+
+.product-badge.rental {
+    background: linear-gradient(135deg, #51FAAA, #00b8d4);
+}
+
+.product-card {
+    position: relative;
+}
+
+/* ---- FIX 8: Hero Badge & Trust Indicators ---- */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(81, 250, 170, 0.1);
+    border: 1px solid rgba(81, 250, 170, 0.3);
+    color: #51FAAA;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(81, 250, 170, 0.4); }
+    50% { box-shadow: 0 0 20px 5px rgba(81, 250, 170, 0.15); }
+}
+
+.hero-title {
+    font-size: 3.5rem !important;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+}
+
+.hero-title span {
+    background: linear-gradient(135deg, #FF81FF, #51FAAA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 2rem;
+}
+
+.hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.trust-indicators {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+/* ---- FIX 9: Tab Buttons ---- */
+.product-tabs {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    padding: 0.4rem;
+    gap: 0.3rem;
+}
+
+.tab-btn {
+    padding: 0.6rem 2rem;
+    border-radius: 50px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(255, 129, 255, 0.4);
+}
+
+.tab-btn:hover:not(.active) {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ---- FIX 10: Mobile Responsive Hero ---- */
+@media (max-width: 576px) {
+    .hero-title {
+        font-size: 2.2rem !important;
+        line-height: 1.2;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    .hero-cta .btn {
+        padding: 0.75rem 1.5rem !important;
+        font-size: 0.9rem !important;
+        width: 100%;
+    }
+
+    .hero-cta {
+        flex-direction: column;
+    }
+
+    .trust-indicators {
+        gap: 0.8rem;
+    }
+
+    .service-features {
+        gap: 1rem;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.8rem !important;
+    }
+
+    .service-card .service-image-wrapper {
+        height: 160px;
+    }
+
+    .product-card > img {
+        height: 160px;
+    }
+
+    .product-tabs {
+        width: 100%;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 0.6rem 1rem;
+    }
+}
+
+/* ---- FIX 11: Glass card base fix ---- */
+.service-card.glass-card,
+.product-card.glass-card {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+/* ---- FIX 12: Stats section always visible ---- */
+.stats-section {
+    display: block !important;
+    visibility: visible !important;
+}
+
+.stats-section .stat-number {
+    color: #ffffff;
 }

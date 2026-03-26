@@ -18,6 +18,9 @@ requests==2.31.0
 # Password Hashing
 bcrypt==4.1.2
 
+# Image Processing
+Pillow==10.2.0
+
 # Production Server (optional)
 gunicorn==21.2.0
 flask-talisman==1.1.0

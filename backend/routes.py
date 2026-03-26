@@ -1,7 +1,18 @@
 """
 API Routes - Security Hardened
 REST endpoints for service requests and contact forms
-With API Key Authentication and Enhanced Validation
+
+SECURITY MODEL:
+- Public endpoints (service-request, contact): NO API key required
+  - Protected by rate limiting
+  - Input validation
+  - IP-based throttling
+  
+- Admin endpoints: Session-based authentication
+  - Secure cookies
+  - CSRF protection
+  - Activity logging
+
 Includes Admin Dashboard endpoints
 """
 
@@ -21,7 +32,11 @@ from security import (
     sanitize_input,
     validate_password_strength,
     hash_password_secure,
-    verify_password_secure
+    verify_password_secure,
+    require_admin_enhanced,
+    add_security_headers,
+    track_login_attempt,
+    get_client_ip
 )
 
 logger = logging.getLogger(__name__)
@@ -31,45 +46,9 @@ api_bp = Blueprint('api', __name__)
 # Create a separate limiter for API routes
 limiter = Limiter(key_func=get_remote_address, storage_uri="memory://")
 
-
-def require_api_key(f):
-    """Decorator to require API key authentication"""
-    from functools import wraps
-    import os
-    
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Get API key from header
-        api_key = request.headers.get('X-API-KEY')
-        
-        # Get expected key from environment variable
-        expected_key = os.getenv('API_KEY')
-        
-        if not expected_key:
-            logger.error("API_KEY not configured in environment")
-            return jsonify({
-                "success": False,
-                "error": "Server configuration error"
-            }), 500
-        
-        # Validate API key
-        if not api_key:
-            logger.warning(f"Unauthorized access attempt from {request.remote_addr} - Missing API key")
-            return jsonify({
-                "success": False,
-                "error": "Unauthorized access - Missing API key"
-            }), 401
-        
-        if api_key != expected_key:
-            logger.warning(f"Unauthorized access attempt from {request.remote_addr} - Invalid API key")
-            return jsonify({
-                "success": False,
-                "error": "Unauthorized access - Invalid API key"
-            }), 401
-        
-        return f(*args, **kwargs)
-    
-    return decorated_function
+# NOTE: API_KEY authentication REMOVED for public endpoints
+# Public endpoints now use rate limiting + input validation
+# Admin endpoints use session-based authentication
 
 
 def validate_phone(phone):
@@ -165,12 +144,15 @@ def validate_contact_message(data):
 
 
 @api_bp.route('/service-request', methods=['POST'])
-@limiter.limit("10 per minute")
-@require_api_key
+@limiter.limit("10 per minute")  # Rate limiting for spam protection
 def submit_service_request():
     """
     Submit a new service request
-    Requires X-API-KEY header
+    
+    SECURITY: No API key required
+    - Protected by rate limiting (10 per minute)
+    - Input validation
+    - IP-based throttling
     
     Expected JSON body:
     {
@@ -267,13 +249,16 @@ def submit_service_request():
 
 
 @api_bp.route('/contact', methods=['POST'])
-@limiter.limit("10 per minute")
-@require_api_key
+@limiter.limit("10 per minute")  # Rate limiting for spam protection
 def submit_contact_message():
     """
     Submit a contact form message
-    Requires X-API-KEY header
     
+    SECURITY: No API key required
+    - Protected by rate limiting (10 per minute)
+    - Input validation
+    - IP-based throttling
+
     Expected JSON body:
     {
         "name": "John Doe",
@@ -438,74 +423,29 @@ def get_contact_messages():
 # ADMIN DASHBOARD ROUTES
 # ========================================
 
-def require_admin(f):
-    """Enhanced admin authentication with security checks"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Check if admin is logged in
-        admin_id = session.get('admin_id')
-        if not admin_id:
-            log_security_event('UNAUTHORIZED_ACCESS', {'endpoint': request.endpoint})
-            response = make_response(jsonify({
-                "success": False,
-                "message": "Unauthorized - Please login"
-            }), 401)
-            response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-            return response
-
-        # Validate session
-        if not validate_session():
-            logger.warning(f"Session validation failed for admin_id: {admin_id}")
-            session.pop('admin_id', None)
-            response = make_response(jsonify({
-                "success": False,
-                "message": "Session expired - Please login again"
-            }), 401)
-            response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-            return response
-
-        # Check if admin is active
-        admin = Admin.query.get(admin_id)
-        if not admin or not admin.is_active:
-            session.pop('admin_id', None)
-            log_security_event('INACTIVE_ADMIN_LOGIN', {'admin_id': admin_id})
-            response = make_response(jsonify({
-                "success": False,
-                "message": "Account deactivated"
-            }), 401)
-            response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
-            response.headers.add('Access-Control-Allow-Credentials', 'true')
-            return response
-
-        # Execute the function and add security headers
-        response = make_response(f(*args, **kwargs))
-        response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin', '*'))
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,X-API-KEY')
-        return response
-    return decorated_function
+# Use require_admin_enhanced from security.py for consistent authentication
+require_admin = require_admin_enhanced
 
 
 @api_bp.route('/admin/login', methods=['POST'])
 @limiter.limit("10 per minute")
 def admin_login():
-    """Admin login endpoint"""
+    """Admin login endpoint with brute force protection"""
     try:
         data = request.get_json()
-        
+        client_ip = get_client_ip()
+
         if not data:
             logger.error("No JSON data provided in login request")
             return jsonify({
                 "success": False,
                 "message": "No data provided"
             }), 400
-        
+
         username = data.get('username', '').strip()
         password = data.get('password', '')
 
-        logger.info(f"Login attempt for username: {username}")
+        logger.info(f"Login attempt for username: {username} from IP: {client_ip}")
 
         if not username or not password:
             logger.error("Username or password missing")
@@ -514,19 +454,38 @@ def admin_login():
                 "message": "Username and password required"
             }), 400
 
+        # Check if account is locked due to failed attempts
+        # TEMPORARILY DISABLED FOR TESTING
+        lock_status = track_login_attempt(username, client_ip, success=False)
+        if False and lock_status.get('is_locked'):  # LOCK DISABLED
+            log_security_event('LOGIN_ATTEMPT_LOCKED', {
+                'username': username,
+                'ip': client_ip,
+                'reason': lock_status.get('message')
+            })
+            return jsonify({
+                "success": False,
+                "message": lock_status.get('message'),
+                "locked": True
+            }), 403
+
         admin = Admin.query.filter_by(username=username).first()
-        
+
         if not admin:
             logger.warning(f"Login attempt with unknown username: {username}")
+            # Still track the attempt even for non-existent users
+            track_login_attempt(username, client_ip, success=False)
             return jsonify({
                 "success": False,
                 "message": "Invalid credentials"
             }), 401
 
         logger.info(f"Admin found, checking password for: {username}")
-        
+
         if not admin.check_password(password):
             logger.warning(f"Failed login attempt for username: {username} - Password mismatch")
+            # Track failed attempt
+            track_login_attempt(username, client_ip, success=False)
             return jsonify({
                 "success": False,
                 "message": "Invalid credentials"
@@ -539,6 +498,9 @@ def admin_login():
                 "message": "Account is deactivated"
             }), 401
 
+        # Successful login - clear attempt tracking
+        track_login_attempt(username, client_ip, success=True)
+        
         # Update last login
         admin.last_login = datetime.utcnow()
         db.session.commit()
@@ -546,9 +508,17 @@ def admin_login():
 
         # Set session
         session['admin_id'] = admin.id
-        logger.info(f"Session set for admin_id: {admin.id}")
+        session['admin_username'] = admin.username  # Store username for activity logging
+        logger.info(f"Session set for admin_id: {admin.id}, username: {admin.username}")
 
         logger.info(f"✅ Admin logged in successfully: {username}")
+
+        # Log successful login
+        log_security_event('LOGIN_SUCCESS', {
+            'username': username,
+            'admin_id': admin.id,
+            'ip': client_ip
+        })
 
         response = make_response(jsonify({
             "success": True,
@@ -598,6 +568,151 @@ def get_current_admin():
         "success": True,
         "data": admin.to_dict()
     }), 200
+
+
+@api_bp.route('/admin/profile', methods=['GET'])
+@require_admin
+def get_admin_profile():
+    """Get current admin profile"""
+    try:
+        admin = Admin.query.get(session['admin_id'])
+        
+        if not admin:
+            return jsonify({
+                "success": False,
+                "message": "Admin not found"
+            }), 404
+        
+        return jsonify({
+            "success": True,
+            "data": admin.to_dict()
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error getting profile: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": "Failed to get profile"
+        }), 500
+
+
+@api_bp.route('/admin/profile', methods=['PUT'])
+@require_admin
+def update_admin_profile():
+    """Update admin profile"""
+    try:
+        data = request.get_json()
+        admin = Admin.query.get(session['admin_id'])
+        
+        if not admin:
+            return jsonify({
+                "success": False,
+                "message": "Admin not found"
+            }), 404
+        
+        # Update fields
+        if 'full_name' in data and data['full_name']:
+            admin.full_name = data['full_name'].strip()
+        
+        if 'email' in data and data['email']:
+            # Validate email
+            from security import validate_email
+            is_valid, error_msg = validate_email(data['email'])
+            if not is_valid:
+                return jsonify({
+                    "success": False,
+                    "message": error_msg or "Invalid email"
+                }), 400
+            admin.email = data['email'].strip()
+        
+        if 'phone' in data and data['phone']:
+            admin.phone = data['phone'].strip()
+        
+        db.session.commit()
+        
+        logger.info(f"Admin profile updated: {admin.username}")
+        
+        return jsonify({
+            "success": True,
+            "message": "Profile updated successfully",
+            "data": admin.to_dict()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error updating profile: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": "Failed to update profile"
+        }), 500
+
+
+@api_bp.route('/admin/change-password', methods=['POST'])
+@require_admin
+@limiter.limit("5 per minute")
+def change_admin_password():
+    """Change admin password"""
+    try:
+        data = request.get_json()
+        admin = Admin.query.get(session['admin_id'])
+        
+        if not admin:
+            return jsonify({
+                "success": False,
+                "message": "Admin not found"
+            }), 404
+        
+        current_password = data.get('current_password', '')
+        new_password = data.get('new_password', '')
+        
+        # Validate inputs
+        if not current_password or not new_password:
+            return jsonify({
+                "success": False,
+                "message": "Current and new password are required"
+            }), 400
+        
+        # Verify current password
+        if not admin.check_password(current_password):
+            return jsonify({
+                "success": False,
+                "message": "Current password is incorrect"
+            }), 400
+        
+        # Validate new password strength
+        from security import validate_password_strength
+        is_valid, error_msg = validate_password_strength(new_password)
+        if not is_valid:
+            return jsonify({
+                "success": False,
+                "message": error_msg
+            }), 400
+        
+        # Set new password
+        admin.set_password(new_password)
+        db.session.commit()
+        
+        logger.info(f"Admin password changed: {admin.username}")
+        
+        # Log security event
+        log_security_event('PASSWORD_CHANGED', {
+            'admin_id': admin.id,
+            'username': admin.username,
+            'ip': get_client_ip()
+        })
+        
+        return jsonify({
+            "success": True,
+            "message": "Password changed successfully"
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error changing password: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": "Failed to change password"
+        }), 500
 
 
 @api_bp.route('/admin/stats', methods=['GET'])

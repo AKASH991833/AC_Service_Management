@@ -1,3 +1,14 @@
+"""
+Customer Management Routes
+CRUD operations for customer database
+"""
+
+from models import db, Customer
+from flask import Blueprint, request, jsonify, session
+from functools import wraps
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ========================================
 # CUSTOMER MANAGEMENT ROUTES
