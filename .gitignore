@@ -48,7 +48,6 @@ Thumbs.db
 
 # Database (SQLite)
 *.db
-!instance/ansh_aircool.db
 
 # Secrets - NEVER commit these
 .env.local
