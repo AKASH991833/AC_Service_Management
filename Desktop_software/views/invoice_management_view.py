@@ -364,11 +364,18 @@ class InvoiceManagementView(BaseView):
                     query += " AND (i.invoice_number LIKE %s OR c.name LIKE %s OR c.mobile LIKE %s)"
                     params.extend([f"%{search_term}%", f"%{search_term}%", f"%{search_term}%"])
 
-                # Date filter
-                from_date = self.from_date.date().toString("yyyy-MM-dd")
-                to_date = self.to_date.date().toString("yyyy-MM-dd")
-                query += " AND DATE(i.created_at) BETWEEN %s AND %s"
-                params.extend([from_date, to_date])
+                # Date filter - Only apply if dates changed from defaults
+                from_date_widget = self.from_date.date().toString("yyyy-MM-dd")
+                to_date_widget = self.to_date.date().toString("yyyy-MM-dd")
+                
+                # Default dates: last 1 month to today
+                default_from = QDate.currentDate().addMonths(-1).toString("yyyy-MM-dd")
+                default_to = QDate.currentDate().toString("yyyy-MM-dd")
+                
+                # Only apply filter if user changed from default
+                if from_date_widget != default_from or to_date_widget != default_to:
+                    query += " AND DATE(i.created_at) BETWEEN %s AND %s"
+                    params.extend([from_date_widget, to_date_widget])
 
                 # Status filter
                 status = self.status_combo.currentText()

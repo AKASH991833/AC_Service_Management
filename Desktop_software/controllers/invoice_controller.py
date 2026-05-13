@@ -156,13 +156,10 @@ class InvoiceController:
         existing = self.db.execute_query(check_query, (invoice_data['invoice_number'],), fetch_one=True)
 
         if existing:
-            # Invoice number already exists - generate new one with timestamp + milliseconds + random
-            from datetime import datetime
+            # Invoice number already exists - regenerate using next sequential number
             import time
-            import random
-            ms = str(int(time.time() * 1000))[-3:]
-            random_suffix = str(random.randint(100, 999))
-            invoice_data['invoice_number'] = f"INV{datetime.now().strftime('%Y%m%d%H%M%S')}{ms}{random_suffix}"
+            time.sleep(0.1)  # Brief pause to ensure unique number
+            invoice_data['invoice_number'] = Formatters.generate_invoice_number(self.db)
             print(f"[WARNING] Duplicate invoice number detected! Generated new: {invoice_data['invoice_number']}")
 
         query = """
@@ -357,8 +354,23 @@ class InvoiceController:
             return False, f"Error updating payment: {str(e)}"
     
     def delete_invoice(self, invoice_id):
-        """Soft delete invoice"""
+        """Soft delete invoice with stock restoration"""
         try:
+            # Restore stock for parts before deleting
+            parts_query = """
+            SELECT ii.part_id, ii.quantity
+            FROM invoice_items ii
+            WHERE ii.invoice_id = %s AND ii.item_type = 'part'
+            """
+            parts = self.db.execute_query(parts_query, (invoice_id,), fetch_all=True)
+            if parts:
+                for part in parts:
+                    self.db.execute_query(
+                        "UPDATE parts SET stock_quantity = stock_quantity + %s WHERE id = %s",
+                        (part['quantity'], part['part_id'])
+                    )
+
+            # Soft delete invoice
             query = "UPDATE invoices SET is_active = FALSE WHERE id = %s"
             self.db.execute_query(query, (invoice_id,))
             return True, "Invoice deleted successfully"

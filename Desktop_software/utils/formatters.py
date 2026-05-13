@@ -174,6 +174,47 @@ class Formatters:
         return text_str[0].upper() + text_str[1:].lower()
 
     @staticmethod
+    def generate_invoice_number(db):
+        """Generate next invoice number in format: INV-YYYYMM-XXXX
+        
+        Real-world format used by professional billing systems.
+        Example: INV-202605-0001, INV-202605-0002
+        - INV = Invoice prefix
+        - 202605 = Year + Month (May 2026)
+        - 0001 = Sequential serial number (resets each month)
+        
+        This format is:
+        - Professional and readable
+        - Organized by month
+        - Easy to search and reference
+        - Prevents duplicates
+        - Industry standard
+        """
+        from datetime import datetime
+        
+        year_month = datetime.now().strftime('%Y%m')  # e.g., 202605
+        
+        try:
+            query = """
+                SELECT MAX(CAST(SUBSTRING_INDEX(invoice_number, '-', -1) AS UNSIGNED)) as max_num
+                FROM invoices
+                WHERE invoice_number LIKE %s
+            """
+            result = db.execute_query(query, (f'INV-{year_month}-%',), fetch_one=True)
+            
+            if result and result['max_num']:
+                next_num = int(result['max_num']) + 1
+            else:
+                next_num = 1
+            
+            return f"INV-{year_month}-{next_num:04d}"
+            
+        except Exception as e:
+            print(f"[ERROR] Failed to generate invoice number: {e}")
+            # Fallback: use timestamp
+            return f"INV-{year_month}-{datetime.now().strftime('%H%M%S')}"
+
+    @staticmethod
     def format_invoice_number(invoice_no):
         """Format invoice number for display"""
         if not invoice_no:

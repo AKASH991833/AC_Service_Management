@@ -208,7 +208,51 @@ class SettingsView(BaseView):
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
 
-        save_btn = QPushButton("💾 Save Profile")
+        change_username_btn = QPushButton("Change Username")
+        change_username_btn.setObjectName("primaryButton")
+        change_username_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #3b82f6;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                font-size: 11pt;
+                font-weight: bold;
+                border-radius: 6px;
+            }
+            QPushButton:hover {
+                background-color: #2563eb;
+            }
+            QPushButton:pressed {
+                background-color: #1d4ed8;
+            }
+        """)
+        change_username_btn.clicked.connect(self._show_change_username_dialog)
+        btn_layout.addWidget(change_username_btn)
+
+        change_password_btn = QPushButton("Change Password")
+        change_password_btn.setObjectName("warningButton")
+        change_password_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #8b5cf6;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                font-size: 11pt;
+                font-weight: bold;
+                border-radius: 6px;
+            }
+            QPushButton:hover {
+                background-color: #7c3aed;
+            }
+            QPushButton:pressed {
+                background-color: #6d28d9;
+            }
+        """)
+        change_password_btn.clicked.connect(self._show_change_password_dialog)
+        btn_layout.addWidget(change_password_btn)
+
+        save_btn = QPushButton("Save Profile")
         save_btn.setObjectName("successButton")
         save_btn.setStyleSheet("""
             QPushButton {
@@ -797,6 +841,20 @@ class SettingsView(BaseView):
         else:
             self.show_error_message(message)
     
+    def _show_change_username_dialog(self):
+        """Show change username dialog"""
+        from views.settings_view import ChangeUsernameDialog
+        dialog = ChangeUsernameDialog(self.user_data.get('id'), self)
+        if dialog.exec():
+            # Refresh the username label after successful change
+            self.username_label.setText(dialog.new_username_input.text().strip())
+    
+    def _show_change_password_dialog(self):
+        """Show change password dialog"""
+        from views.settings_view import ChangePasswordDialog
+        dialog = ChangePasswordDialog(self.user_data.get('id'), self)
+        dialog.exec()
+    
     def save_shop_details(self):
         """Save shop details with real-time update"""
         shop_name = self.shop_name_input.text().strip()
@@ -995,20 +1053,84 @@ class ChangePasswordDialog(QDialog):
         form = QFormLayout()
         form.setSpacing(15)
 
+        eye_style = """
+            QPushButton {
+                background: transparent;
+                border: none;
+                font-size: 16px;
+                padding: 2px;
+                color: #9ca3af;
+            }
+            QPushButton:hover {
+                color: #60a5fa;
+            }
+            QPushButton:checked {
+                color: #60a5fa;
+            }
+        """
+        hide_style = """
+            QPushButton {
+                background: transparent;
+                border: none;
+                font-size: 16px;
+                padding: 2px;
+                color: #9ca3af;
+            }
+            QPushButton:hover {
+                color: #60a5fa;
+            }
+        """
+
         self.current_password_input = QLineEdit()
         self.current_password_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.current_password_input.setPlaceholderText("Enter current password")
-        form.addRow("Current Password:", self.current_password_input)
+        current_pw_layout = QHBoxLayout()
+        current_pw_layout.addWidget(self.current_password_input)
+        self.current_eye_btn = QPushButton("Show")
+        self.current_eye_btn.setFixedWidth(50)
+        self.current_eye_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.current_eye_btn.setCheckable(True)
+        self.current_eye_btn.setStyleSheet(eye_style)
+        def toggle_current(checked):
+            self.current_password_input.setEchoMode(QLineEdit.EchoMode.Normal if checked else QLineEdit.EchoMode.Password)
+            self.current_eye_btn.setText("Hide" if checked else "Show")
+        self.current_eye_btn.toggled.connect(toggle_current)
+        current_pw_layout.addWidget(self.current_eye_btn)
+        form.addRow("Current Password:", current_pw_layout)
 
         self.new_password_input = QLineEdit()
         self.new_password_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.new_password_input.setPlaceholderText("Enter new password")
-        form.addRow("New Password:", self.new_password_input)
+        new_pw_layout = QHBoxLayout()
+        new_pw_layout.addWidget(self.new_password_input)
+        self.new_eye_btn = QPushButton("Show")
+        self.new_eye_btn.setFixedWidth(50)
+        self.new_eye_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.new_eye_btn.setCheckable(True)
+        self.new_eye_btn.setStyleSheet(eye_style)
+        def toggle_new(checked):
+            self.new_password_input.setEchoMode(QLineEdit.EchoMode.Normal if checked else QLineEdit.EchoMode.Password)
+            self.new_eye_btn.setText("Hide" if checked else "Show")
+        self.new_eye_btn.toggled.connect(toggle_new)
+        new_pw_layout.addWidget(self.new_eye_btn)
+        form.addRow("New Password:", new_pw_layout)
 
         self.confirm_password_input = QLineEdit()
         self.confirm_password_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.confirm_password_input.setPlaceholderText("Re-enter new password")
-        form.addRow("Confirm Password:", self.confirm_password_input)
+        confirm_pw_layout = QHBoxLayout()
+        confirm_pw_layout.addWidget(self.confirm_password_input)
+        self.confirm_eye_btn = QPushButton("Show")
+        self.confirm_eye_btn.setFixedWidth(50)
+        self.confirm_eye_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.confirm_eye_btn.setCheckable(True)
+        self.confirm_eye_btn.setStyleSheet(eye_style)
+        def toggle_confirm(checked):
+            self.confirm_password_input.setEchoMode(QLineEdit.EchoMode.Normal if checked else QLineEdit.EchoMode.Password)
+            self.confirm_eye_btn.setText("Hide" if checked else "Show")
+        self.confirm_eye_btn.toggled.connect(toggle_confirm)
+        confirm_pw_layout.addWidget(self.confirm_eye_btn)
+        form.addRow("Confirm Password:", confirm_pw_layout)
 
         layout.addLayout(form)
 
@@ -1057,7 +1179,7 @@ class ChangePasswordDialog(QDialog):
         from controllers.auth_controller import AuthController
         from database.db_connection import DatabaseConnection
 
-        is_valid, message = AuthController.validate_password_strength(None, new)
+        is_valid, message = AuthController.validate_password_strength(new)
         if not is_valid:
             QMessageBox.warning(self, "Weak Password", message)
             return
@@ -1066,6 +1188,123 @@ class ChangePasswordDialog(QDialog):
         db = DatabaseConnection()
         auth = AuthController(db)
         success, msg = auth.change_password(self.user_id, current, new)
+
+        if success:
+            self.accept()
+            QMessageBox.information(self, "Success", msg)
+        else:
+            QMessageBox.warning(self, "Error", msg)
+
+
+class ChangeUsernameDialog(QDialog):
+    """Dialog for changing username"""
+    
+    def __init__(self, user_id, parent=None):
+        super().__init__(parent)
+        self.user_id = user_id
+        self.setWindowTitle("Change Username")
+        self.setMinimumWidth(400)
+        self.setStyleSheet(parent.theme_manager.get_main_stylesheet() if parent else "")
+        
+        self._setup_ui()
+    
+    def _setup_ui(self):
+        """Setup dialog UI"""
+        layout = QVBoxLayout(self)
+
+        form = QFormLayout()
+        form.setSpacing(15)
+
+        info_label = QLabel("⚠️ Changing your username will affect your login credentials. Make sure to remember the new username.")
+        info_label.setWordWrap(True)
+        info_label.setStyleSheet("""
+            color: #fbbf24;
+            font-size: 9pt;
+            background-color: rgba(251, 191, 36, 0.1);
+            border-left: 3px solid #fbbf24;
+            padding: 10px;
+            border-radius: 4px;
+        """)
+        layout.addWidget(info_label)
+
+        self.current_password_input = QLineEdit()
+        self.current_password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.current_password_input.setPlaceholderText("Enter current password")
+        current_pw_layout = QHBoxLayout()
+        current_pw_layout.addWidget(self.current_password_input)
+        self.current_eye_btn = QPushButton("Show")
+        self.current_eye_btn.setFixedWidth(50)
+        self.current_eye_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.current_eye_btn.setCheckable(True)
+        eye_style = """
+            QPushButton {
+                background: transparent;
+                border: none;
+                font-size: 12px;
+                padding: 2px;
+                color: #9ca3af;
+            }
+            QPushButton:hover {
+                color: #60a5fa;
+            }
+        """
+        self.current_eye_btn.setStyleSheet(eye_style)
+        def toggle_current(checked):
+            self.current_password_input.setEchoMode(QLineEdit.EchoMode.Normal if checked else QLineEdit.EchoMode.Password)
+            self.current_eye_btn.setText("Hide" if checked else "Show")
+        self.current_eye_btn.toggled.connect(toggle_current)
+        current_pw_layout.addWidget(self.current_eye_btn)
+        form.addRow("Current Password:", current_pw_layout)
+
+        self.new_username_input = QLineEdit()
+        self.new_username_input.setPlaceholderText("Enter new username")
+        self.new_username_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #334155;
+                color: white;
+                border: 1px solid #475569;
+                border-radius: 6px;
+                padding: 8px 12px;
+                font-size: 10pt;
+            }
+            QLineEdit:focus {
+                border: 2px solid #3b82f6;
+            }
+        """)
+        form.addRow("New Username:", self.new_username_input)
+
+        layout.addLayout(form)
+
+        rules_label = QLabel("💡 Username must be at least 3 characters and can only contain letters, numbers, and underscores (_).")
+        rules_label.setWordWrap(True)
+        rules_label.setStyleSheet("""
+            color: #94a3b8;
+            font-size: 9pt;
+        """)
+        layout.addWidget(rules_label)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self._validate_and_accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+    
+    def _validate_and_accept(self):
+        """Validate and change username"""
+        current = self.current_password_input.text()
+        new_username = self.new_username_input.text().strip()
+
+        if not current or not new_username:
+            QMessageBox.warning(self, "Validation", "All fields are required")
+            return
+
+        from controllers.auth_controller import AuthController
+        from database.db_connection import DatabaseConnection
+
+        db = DatabaseConnection()
+        auth = AuthController(db)
+        success, msg = auth.change_username(self.user_id, current, new_username)
 
         if success:
             self.accept()

@@ -4,30 +4,38 @@ Flask REST API for service requests and contact forms
 Security Hardened Version
 """
 
-from flask import Flask, jsonify, request, make_response
+import sys
+import os
+from datetime import timedelta
+
+# Add the backend directory to sys.path so modules can be imported
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
+from flask import Flask, jsonify, request, make_response, send_from_directory
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 from dotenv import load_dotenv
-import os
 import logging
-from datetime import timedelta
-from logging_config import setup_logging
 
-# Load environment variables
+# Load environment variables FIRST
 load_dotenv()
 
-# Setup logging first
+from logging_config import setup_logging
+from models import db, ServiceRequest, ContactMessage
+from routes import api_bp
+from admin_routes import admin_bp
+from management_routes import mgmt_bp
+from security import init_security, add_security_headers
+
+# Setup logging
 loggers = setup_logging()
 logger = loggers['app']
 security_logger = loggers['security']
 admin_logger = loggers['admin']
-
-from models import db, ServiceRequest, ContactMessage
-from routes import api_bp
-from admin_routes import admin_bp
-from security import init_security, add_security_headers
 
 
 def create_app():
@@ -49,7 +57,8 @@ def create_app():
     # Session Security - Production Hardened
     app.config['SESSION_COOKIE_NAME'] = 'ansh_admin_session'
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_SECURE'] = os.getenv('FLASK_ENV') == 'production'  # HTTPS only
+    # Allow HTTP for localhost development
+    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 
@@ -66,11 +75,11 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
     app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-    
+
     # Create upload folder if it doesn't exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'gallery'), exist_ok=True)
-    
+
     # Initialize extensions
     db.init_app(app)
 
@@ -78,32 +87,33 @@ def create_app():
     # CORS CONFIGURATION (Secure)
     # ========================================
     allowed_origins = [
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
         "http://localhost:5000",
         "http://127.0.0.1:5000"
     ]
 
-    # In production, only allow specific origins
     if os.getenv('FLASK_ENV') == 'production':
-        allowed_origins = [os.getenv('FRONTEND_URL', 'https://yourdomain.com')]
+        allowed_origins = [os.getenv('FRONTEND_URL', 'https://anshaircool.com')]
 
     CORS(app, resources={
-        r"/api/*": {
+        r"/api/.*": {
             "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization", "X-API-KEY", "X-CSRF-Token"],
+            "allow_headers": ["Content-Type", "Authorization", "X-API-KEY", "X-CSRF-Token", "X-Session-Token"],
             "supports_credentials": True,
             "expose_headers": ["Content-Type", "Authorization", "Set-Cookie"],
             "max_age": 3600
         }
     })
 
-    # Rate limiting configuration (Increased for development)
+    # Rate limiting configuration
     limiter = Limiter(
         key_func=get_remote_address,
         app=app,
-        default_limits=["1000 per day", "100 per hour"],  # Increased limits
+        default_limits=["10000 per hour"],
         storage_uri="memory://",
         enabled=os.getenv('RATELIMIT_ENABLED', 'true').lower() == 'true'
     )
@@ -111,51 +121,10 @@ def create_app():
     # Register blueprints
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(admin_bp, url_prefix='/api/admin-full')
+    app.register_blueprint(mgmt_bp, url_prefix='/api')
 
-    # Initialize security measures
+    # Initialize security measures (includes security headers, rate limiting, etc.)
     init_security(app)
-
-    # Security Headers Middleware
-    @app.after_request
-    def add_security_headers(response):
-        """Add comprehensive security headers to all responses"""
-        # Prevent clickjacking
-        response.headers['X-Frame-Options'] = 'DENY'
-        
-        # Prevent MIME type sniffing
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        
-        # XSS Protection
-        response.headers['X-XSS-Protection'] = '1; mode=block'
-        
-        # HSTS (force HTTPS in production)
-        if os.getenv('FLASK_ENV') == 'production':
-            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-        
-        # Content Security Policy (relaxed for development)
-        csp_policy = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-            "font-src 'self' https://cdn.jsdelivr.net; "
-            "img-src 'self' data: https: blob:; "
-            "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 http://localhost:5500 http://127.0.0.1:5500; "
-            "frame-ancestors 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self'"
-        )
-        response.headers['Content-Security-Policy'] = csp_policy
-        
-        # Referrer Policy
-        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-        
-        # Cache Control for admin endpoints (prevent sensitive data caching)
-        if request.endpoint and 'admin' in request.endpoint:
-            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-            response.headers['Pragma'] = 'no-cache'
-            response.headers['Expires'] = '0'
-        
-        return response
 
     # Health check endpoint (no auth required)
     @app.route('/health', methods=['GET'])
@@ -169,6 +138,39 @@ def create_app():
         from flask import send_from_directory
         uploads_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'gallery')
         return send_from_directory(uploads_dir, filename)
+
+    # Serve frontend assets (images, css, js)
+    @app.route('/assets/<path:filename>')
+    def serve_assets(filename):
+        """Serve frontend assets (images, etc.)"""
+        try:
+            from flask import send_from_directory
+            assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend', 'assets')
+            return send_from_directory(assets_dir, filename)
+        except Exception as e:
+            logger.error(f"Error serving asset {filename}: {e}")
+            return jsonify({"success": False, "message": "File not found"}), 404
+
+    # Serve entire frontend (HTML, CSS, JS, images)
+    FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'frontend')
+
+    @app.route('/')
+    def serve_frontend():
+        """Serve main website homepage"""
+        return send_from_directory(FRONTEND_DIR, 'index.html')
+
+    @app.route('/<path:filename>')
+    def serve_frontend_files(filename):
+        """Serve frontend static files"""
+        # Skip API routes
+        if filename.startswith('api/') or filename.startswith('health'):
+            return jsonify({"success": False, "message": "Endpoint not found"}), 404
+        
+        # Try to serve from frontend directory
+        try:
+            return send_from_directory(FRONTEND_DIR, filename)
+        except:
+            return jsonify({"success": False, "message": "File not found"}), 404
 
     # Error handlers
     @app.errorhandler(404)
@@ -214,11 +216,11 @@ if __name__ == '__main__':
     # Run the application
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    
+
     # Security warning for debug mode
     if debug:
         logger.warning("⚠️  WARNING: Debug mode is enabled! Disable in production!")
-    
+
     # Log security configuration
     logger.info("=" * 50)
     logger.info("🔒 SECURITY CONFIGURATION")
@@ -229,6 +231,6 @@ if __name__ == '__main__':
     logger.info(f"Security Headers: Enabled")
     logger.info(f"CORS Origins: localhost only")
     logger.info("=" * 50)
-    
+
     logger.info(f"🚀 Starting Flask server on port {port}...")
     app.run(host='0.0.0.0', port=port, debug=debug, use_reloader=False)

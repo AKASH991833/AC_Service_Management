@@ -26,8 +26,13 @@ wheels/
 # Flask
 instance/.webassets-cache
 .env
+.env.local
+.env.production
 
-# IDE
+# Secrets - NEVER commit these
+*.env.bak
+*.key
+*.pem
 .vscode/
 .idea/
 *.swp
@@ -48,5 +53,23 @@ Thumbs.db
 # Secrets - NEVER commit these
 .env.local
 .env.production
+*.env.bak
 *.key
 *.pem
+
+# Deleted / unused files backup
+deleted_files/
+
+# Photos / Screenshots
+photos/
+
+# Desktop standalone app (separate project)
+Desktop_software/
+
+# Duplicate virtual environment
+nenv/
+
+# Empty backup dir
+backups/
+
+# IDE

@@ -167,7 +167,6 @@ const API = (function() {
             showToast(response.message || 'Service request submitted successfully!', 'success');
             return response;
         } catch (error) {
-            console.error('Service Request Error:', error);
             showToast(error.message || 'Failed to submit request. Please try again.', 'error');
             throw error;
         } finally {
@@ -187,7 +186,11 @@ const API = (function() {
                 ? Validation.sanitizeFormData(data)
                 : data;
 
-            const response = await request(API_CONFIG.ENDPOINTS.CONTACT, {
+            const endpoint = (API_CONFIG.ENDPOINTS && API_CONFIG.ENDPOINTS.CONTACT) 
+                ? API_CONFIG.ENDPOINTS.CONTACT 
+                : (typeof FRONTEND_SETTINGS !== 'undefined' ? FRONTEND_SETTINGS.ENDPOINTS.CONTACT : '/api/contact');
+
+            const response = await request(endpoint, {
                 method: 'POST',
                 body: JSON.stringify(sanitizedData)
             });
@@ -195,7 +198,6 @@ const API = (function() {
             showToast(response.message || 'Message sent successfully! We will contact you soon.', 'success');
             return response;
         } catch (error) {
-            console.error('Contact Form Error:', error);
             showToast(error.message || 'Failed to send message. Please try again.', 'error');
             throw error;
         } finally {

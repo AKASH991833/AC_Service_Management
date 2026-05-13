@@ -20,12 +20,4 @@
         <priority>0.9</priority>
     </url>
     
-    <!-- Admin Panel (optional - may want to exclude from indexing) -->
-    <url>
-        <loc>https://anshaircool.com/admin/dashboard.html</loc>
-        <lastmod>2026-03-15</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.1</priority>
-    </url>
-    
 </urlset>

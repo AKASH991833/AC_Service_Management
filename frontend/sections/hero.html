@@ -1,173 +1,742 @@
-<!-- ========================================
-     HERO SECTION
-     Premium Hero with Auto-Rotating Image Slideshow
+﻿<!-- ========================================
+      HERO SECTION - ENHANCED & RESPONSIVE
+      Modern Design with Split AC Featured
 ======================================== -->
 <section id="home" class="hero-section">
-
-    <!-- ===== BACKGROUND IMAGE SLIDESHOW ===== -->
-    <div class="hero-slider" id="heroSlider">
-        <div class="hero-slide active" style="background-image: url('assets/images/hero-slide-1.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('assets/images/hero-slide-2.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('assets/images/hero-slide-3.jpg')"></div>
-    </div>
-
-    <!-- Dark overlay for text readability -->
-    <div class="hero-overlay"></div>
-
-    <!-- Slide indicators (dots) -->
-    <div class="hero-indicators" id="heroIndicators">
-        <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
-        <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
-        <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+    <!-- ===== MAIN BACKGROUND WITH SPLIT AC IMAGE ===== -->
+    <div class="hero-bg-wrapper">
+        <img src="assets/images/split-ac.jpg" alt="Split AC Service Mumbai - Ansh Air Cool" class="hero-main-bg" loading="eager">
+        <div class="hero-overlay"></div>
+        <div class="hero-particles" id="heroParticles"></div>
     </div>
 
     <!-- ===== HERO CONTENT ===== -->
     <div class="container hero-content-wrapper">
-        <div class="row align-items-center">
-            <div class="col-lg-9" data-aos="fade-right" data-aos-duration="1000">
-
+        <div class="row align-items-center min-vh-100">
+            <!-- Left Content (Text) -->
+            <div class="col-lg-6 col-md-7 hero-text-content">
                 <!-- Badge -->
-                <div class="hero-badge mb-3" data-aos="zoom-in" data-aos-delay="200">
-                    <i class="fas fa-award me-2"></i>#1 AC Service Provider in Mumbai
+                <div class="hero-badge" data-aos="fade-down" data-aos-delay="100">
+                    <i class="fas fa-award"></i>
+                    <span>Mumbai's #1 AC Service</span>
                 </div>
 
                 <!-- Main Headline -->
-                <h1 class="hero-title" data-aos="fade-up" data-aos-delay="400">
-                    Professional AC Service &amp; Installation at Your Doorstep
+                <h1 class="hero-title" data-aos="fade-up" data-aos-delay="200">
+                    <span class="hero-title-line">Expert AC</span>
+                    <span class="hero-title-accent">Service & Installation</span>
+                    <span class="hero-title-sub">At Your Doorstep</span>
                 </h1>
 
                 <!-- Subheadline -->
-                <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="600">
-                    <i class="fas fa-check-circle text-cyan me-2"></i>
-                    Certified Technicians &nbsp;|&nbsp; 
-                    <i class="fas fa-clock text-cyan me-2"></i>
-                    Same Day Service &nbsp;|&nbsp; 
-                    <i class="fas fa-users text-cyan me-2"></i>
-                    Trusted by 1000+ Customers
+                <p class="hero-description" data-aos="fade-up" data-aos-delay="300">
+                    Professional AC repair, installation & maintenance with <strong>90-day warranty</strong>. 
+                    Certified technicians, same-day service across Mumbai.
                 </p>
 
+                <!-- Trust Badges -->
+                <div class="hero-trust-badges" data-aos="fade-up" data-aos-delay="400">
+                    <div class="trust-badge">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Certified Techs</span>
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-clock"></i>
+                        <span>Same Day Service</span>
+                    </div>
+                    <div class="trust-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>90 Days Warranty</span>
+                    </div>
+                </div>
+
                 <!-- CTA Buttons -->
-                <div class="hero-cta" data-aos="fade-up" data-aos-delay="800">
+                <div class="hero-cta" data-aos="fade-up" data-aos-delay="500">
                     <a href="#contact" class="btn btn-primary-glow btn-lg">
-                        <i class="fas fa-calendar-check me-2"></i>Book Service
+                        <i class="fas fa-calendar-check me-2"></i>Book Free Visit
                     </a>
                     <a href="tel:+919819104977" class="btn btn-outline-glow btn-lg">
-                        <i class="fas fa-phone me-2"></i>Call Now
+                        <i class="fas fa-phone-alt me-2"></i>Call Now
+                    </a>
+                    <a href="https://wa.me/919819104977" class="btn btn-whatsapp-hero btn-lg" target="_blank">
+                        <i class="fab fa-whatsapp me-2"></i>WhatsApp
                     </a>
                 </div>
 
-                <!-- Trust Indicators -->
-                <div class="trust-indicators mt-4" data-aos="fade-up" data-aos-delay="1000">
-                    <div class="trust-item">
-                        <i class="fas fa-check-circle text-success"></i>
-                        <span>5000+ Happy Customers</span>
+                <!-- Quick Services -->
+                <div class="hero-quick-services" data-aos="fade-up" data-aos-delay="600">
+                    <span class="quick-label">Popular:</span>
+                    <a href="#contact" class="quick-chip" data-service="repair">
+                        <i class="fas fa-screwdriver-wrench"></i> Repair
+                    </a>
+                    <a href="#contact" class="quick-chip" data-service="installation">
+                        <i class="fas fa-toolbox"></i> Install
+                    </a>
+                    <a href="#contact" class="quick-chip" data-service="gas">
+                        <i class="fas fa-gauge-high"></i> Gas Refill
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Content (Featured Image Card) -->
+            <div class="col-lg-6 col-md-5 hero-visual-content d-none d-md-block" data-aos="fade-left" data-aos-delay="300">
+                <div class="hero-featured-card">
+                    <div class="featured-img-wrapper">
+                        <img src="assets/images/split-ac.jpg" alt="Split AC Installation by Ansh Air Cool" class="featured-img" loading="eager">
+                        <div class="featured-badge">
+                            <i class="fas fa-snowflake fa-spin"></i>
+                            <span>Cooling Experts</span>
+                        </div>
                     </div>
-                    <div class="trust-item">
-                        <i class="fas fa-clock text-warning"></i>
-                        <span>Same Day Service</span>
-                    </div>
-                    <div class="trust-item">
-                        <i class="fas fa-shield-alt text-info"></i>
-                        <span>90 Days Warranty</span>
+                    <div class="featured-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <strong>5000+</strong>
+                                <span>Happy Clients</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-star"></i>
+                            <div>
+                                <strong>4.8/5</strong>
+                                <span>Rating</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <strong>10+</strong>
+                                <span>Years Exp.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Prev / Next Arrows -->
-    <button class="hero-arrow hero-arrow-prev" id="heroPrev" aria-label="Previous slide">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    <button class="hero-arrow hero-arrow-next" id="heroNext" aria-label="Next slide">
-        <i class="fas fa-chevron-right"></i>
-    </button>
-
+    <!-- Floating CTA for Mobile (Hidden after scroll) -->
+    <div class="hero-floating-cta d-md-none" id="mobileFloatingCTA" style="display: none;">
+        <a href="#contact" class="btn btn-primary-glow">
+            <i class="fas fa-calendar-check me-2"></i>Book Now
+        </a>
+        <a href="tel:+919819104977" class="btn btn-outline-glow">
+            <i class="fas fa-phone-alt me-2"></i>Call
+        </a>
+    </div>
 </section>
 
-<!-- ===== HERO SLIDER SCRIPT ===== -->
+<!-- ===== HERO STYLES ===== -->
+<style>
+/* ========================================
+   HERO SECTION - ENHANCED & RESPONSIVE
+   ======================================== */
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 120px 0 80px;
+}
+
+/* Background Wrapper */
+.hero-bg-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.hero-main-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: brightness(0.7) contrast(1.05) saturate(1.1);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(12, 14, 29, 0.5) 0%,
+        rgba(12, 14, 29, 0.25) 50%,
+        rgba(12, 14, 29, 0.6) 100%
+    );
+    z-index: 1;
+}
+
+.hero-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Hero Content */
+.hero-content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-text-content {
+    position: relative;
+    z-index: 3;
+}
+
+/* Badge */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 129, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 129, 255, 0.4);
+    padding: 0.7rem 1.6rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    box-shadow: 0 8px 32px rgba(255, 129, 255, 0.3);
+    letter-spacing: 0.03em;
+    margin-bottom: 1.5rem;
+}
+
+.hero-badge i {
+    color: #FFD700;
+    font-size: 1.1rem;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+}
+
+/* Title */
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.15;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+}
+
+.hero-title-line {
+    display: block;
+    color: #ffffff;
+}
+
+.hero-title-accent {
+    background: linear-gradient(135deg, #FF81FF, #51FAAA);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.hero-title-sub {
+    display: block;
+    font-size: 0.5em;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 0.3rem;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Description */
+.hero-description {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.hero-description strong {
+    color: #51FAAA;
+    font-weight: 700;
+}
+
+/* Trust Badges */
+.hero-trust-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    color: #ffffff;
+}
+
+.trust-badge i {
+    color: #51FAAA;
+    font-size: 0.9rem;
+}
+
+/* CTA Buttons */
+.hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.hero-cta .btn {
+    padding: 15px 32px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hero-cta .btn-primary-glow:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 129, 255, 0.5);
+}
+
+.hero-cta .btn-outline-glow {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.hero-cta .btn-outline-glow:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #FF81FF;
+    transform: translateY(-3px);
+}
+
+/* WhatsApp Button */
+.btn-whatsapp-hero {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    border: none;
+    color: #ffffff !important;
+    box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+}
+
+.btn-whatsapp-hero:hover {
+    background: linear-gradient(135deg, #128C7E 0%, #075E54 100%);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+}
+
+/* Quick Services */
+.hero-quick-services {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    font-size: 0.9rem;
+}
+
+.quick-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.quick-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.quick-chip:hover {
+    background: rgba(255, 129, 255, 0.2);
+    border-color: rgba(255, 129, 255, 0.4);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.quick-chip i {
+    color: #FF81FF;
+    font-size: 0.8rem;
+}
+
+/* Featured Card (Right Side) */
+.hero-visual-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-featured-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s ease;
+}
+
+.hero-featured-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 30px 80px rgba(255, 129, 255, 0.3);
+    border-color: rgba(255, 129, 255, 0.3);
+}
+
+.featured-img-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.featured-img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.hero-featured-card:hover .featured-img {
+    transform: scale(1.05);
+}
+
+.featured-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 129, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 5px 20px rgba(255, 129, 255, 0.4);
+}
+
+.featured-badge i {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.featured-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: #ffffff;
+}
+
+.stat-item i {
+    font-size: 1.2rem;
+    color: #FF81FF;
+}
+
+.stat-item strong {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #FF81FF, #51FAAA);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-item span {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Floating CTA (Mobile Friendly) */
+.hero-floating-cta {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    z-index: 1000;
+    animation: slideUp 0.6s ease-out 1s backwards;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.hero-floating-cta .btn {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 768px) {
+    .hero-floating-cta { display: none; }
+}
+
+/* ========================================
+   RESPONSIVE STYLES
+   ======================================== */
+@media (max-width: 991px) {
+    .hero-section {
+        padding: 100px 0 60px;
+    }
+    
+    .hero-title {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+    }
+    
+    .hero-featured-card {
+        margin-top: 3rem;
+    }
+    
+    .featured-img {
+        height: 220px;
+    }
+}
+
+@media (max-width: 767px) {
+    .hero-section {
+        min-height: auto;
+        padding: 130px 0 60px;
+    }
+    
+    .hero-title {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-badge {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-trust-badges {
+        gap: 0.6rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .trust-badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .hero-cta {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-cta .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 14px 24px;
+        margin: 0 auto !important;
+    }
+    
+    .hero-quick-services {
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .quick-chip {
+        padding: 0.3rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .hero-visual-content {
+        margin-top: 2rem;
+    }
+    
+    .featured-img {
+        height: 200px;
+    }
+    
+    .featured-stats {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+    
+    .stat-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.3rem;
+    }
+    
+    .stat-item i {
+        font-size: 1rem;
+    }
+    
+    .stat-item strong {
+        font-size: 1rem;
+    }
+    
+    .stat-item span {
+        font-size: 0.65rem;
+    }
+    
+    .hero-scroll-indicator {
+        display: none;
+    }
+}
+
+/* Light Mode Support */
+body.light-mode .hero-section {
+    background: #f8f9fa;
+}
+
+body.light-mode .hero-overlay {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.9) 100%
+    );
+}
+
+body.light-mode .hero-title-line {
+    color: #0C0E1D;
+    -webkit-text-fill-color: #0C0E1D;
+}
+
+body.light-mode .hero-title-sub {
+    color: #211F36;
+    -webkit-text-fill-color: #211F36;
+}
+
+body.light-mode .hero-description {
+    color: rgba(0, 0, 0, 0.8);
+    text-shadow: none;
+}
+
+body.light-mode .hero-badge {
+    background: rgba(255, 129, 255, 0.1);
+    border-color: rgba(255, 129, 255, 0.3);
+    color: #211F36;
+}
+
+body.light-mode .trust-badge {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #211F36;
+}
+
+body.light-mode .quick-chip {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #211F36;
+}
+
+body.light-mode .hero-featured-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .featured-stats {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .stat-item {
+    color: #211F36;
+}
+
+body.light-mode .stat-item span {
+    color: rgba(0, 0, 0, 0.6);
+}
+</style>
+
+<!-- ===== HERO PARTICLES SCRIPT ===== -->
 <script>
 (function() {
     'use strict';
-
-    const SLIDE_DURATION = 4000; // 4 seconds per slide
-    const TRANSITION_DURATION = 1200; // 1.2s crossfade
-
-    let currentSlide = 0;
-    let slideTimer = null;
-    let isTransitioning = false;
-
-    const slider = document.getElementById('heroSlider');
-    const slides = slider ? slider.querySelectorAll('.hero-slide') : [];
-    const dots = document.querySelectorAll('.hero-dot');
-    const prevBtn = document.getElementById('heroPrev');
-    const nextBtn = document.getElementById('heroNext');
-
-    if (!slides.length) return;
-
-    function goToSlide(index) {
-        if (isTransitioning || index === currentSlide) return;
-        isTransitioning = true;
-
-        // Remove active from current
-        slides[currentSlide].classList.remove('active');
-        dots[currentSlide].classList.remove('active');
-
-        // Set new slide
-        currentSlide = (index + slides.length) % slides.length;
-        slides[currentSlide].classList.add('active');
-        dots[currentSlide].classList.add('active');
-
-        setTimeout(() => { isTransitioning = false; }, TRANSITION_DURATION);
+    
+    function initHeroParticles() {
+        const container = document.getElementById('heroParticles');
+        if (!container) return;
+        
+        const particleCount = window.innerWidth < 768 ? 15 : 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: ${Math.random() * 4 + 2}px;
+                height: ${Math.random() * 4 + 2}px;
+                background: rgba(255, 129, 255, ${Math.random() * 0.5 + 0.2});
+                border-radius: 50%;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation: float ${Math.random() * 10 + 10}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 5}s;
+                pointer-events: none;
+            `;
+            container.appendChild(particle);
+        }
+        
+        console.log('âœ… Hero particles initialized');
     }
-
-    function nextSlide() {
-        goToSlide(currentSlide + 1);
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHeroParticles);
+    } else {
+        initHeroParticles();
     }
-
-    function prevSlide() {
-        goToSlide(currentSlide - 1);
-    }
-
-    function startAutoPlay() {
-        stopAutoPlay();
-        slideTimer = setInterval(nextSlide, SLIDE_DURATION);
-    }
-
-    function stopAutoPlay() {
-        if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
-    }
-
-    // Dot click
-    dots.forEach((dot, i) => {
-        dot.addEventListener('click', () => { goToSlide(i); startAutoPlay(); });
-    });
-
-    // Arrow clicks
-    if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); startAutoPlay(); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); startAutoPlay(); });
-
-    // Pause on hover (good UX!)
-    const heroSection = document.getElementById('home');
-    if (heroSection) {
-        heroSection.addEventListener('mouseenter', stopAutoPlay);
-        heroSection.addEventListener('mouseleave', startAutoPlay);
-    }
-
-    // Touch / Swipe support for mobile
-    let touchStartX = 0;
-    if (slider) {
-        slider.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-        slider.addEventListener('touchend', (e) => {
-            const diff = touchStartX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) {
-                diff > 0 ? nextSlide() : prevSlide();
-                startAutoPlay();
-            }
-        }, { passive: true });
-    }
-
-    // Start!
-    startAutoPlay();
 })();
 </script>
+

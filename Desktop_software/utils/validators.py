@@ -212,11 +212,19 @@ class Validators:
         
         invoice_no = invoice_no.strip().upper()
         
-        # Common invoice format: INV-2023-001 or INV2023001
-        pattern = r'^[A-Z]{2,}[-\s]?\d{4}[-\s]?\d{3,}$'
+        # Accepted formats:
+        # INV-202605-0001 (New professional format - recommended)
+        # INV-QA-005 (Legacy short format)
+        # INV20260501223045 (Legacy timestamp format)
+        import re
+        patterns = [
+            r'^INV-\d{6}-\d{4}$',      # INV-202605-0001 (New)
+            r'^INV-[A-Z]{2,}-\d{3,}$', # INV-QA-005 (Legacy short)
+            r'^INV\d{14,}$',           # INV20260501223045 (Legacy timestamp)
+        ]
         
-        if not re.match(pattern, invoice_no):
-            return False, "Invalid invoice number format"
+        if not any(re.match(p, invoice_no) for p in patterns):
+            return False, "Invalid invoice number format. Expected: INV-YYYYMM-XXXX"
         
         return True, "Valid invoice number"
     

@@ -67,7 +67,7 @@ class AuthController:
             user = self.db.execute_query(query, (username,), fetch_one=True)
 
             if not user:
-                return None, "User not found"
+                return None, "Invalid username or password. Please enter valid credentials."
 
             # Verify hashed password
             if bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
@@ -99,11 +99,48 @@ class AuthController:
                         (failed_attempts, user['id'])
                     )
                     remaining = 5 - failed_attempts
-                    return None, f"Invalid password. {remaining} attempts remaining."
+                    return None, f"Incorrect password. {remaining} attempt(s) remaining."
 
         except Exception as e:
             logger.error(f"Login error: {e}")
             return None, f"Error: {str(e)}"
+
+    def change_username(self, user_id, old_password, new_username):
+        """Change username with password verification"""
+        try:
+            if not new_username or not new_username.strip():
+                return False, "Username cannot be empty"
+
+            if len(new_username) < 3:
+                return False, "Username must be at least 3 characters long"
+
+            if not re.match(r"^[a-zA-Z0-9_]+$", new_username):
+                return False, "Username can only contain letters, numbers, and underscores"
+
+            # Verify current password
+            query = "SELECT id, password_hash FROM users WHERE id = %s"
+            user = self.db.execute_query(query, (user_id,), fetch_one=True)
+
+            if not user:
+                return False, "User not found"
+
+            if not bcrypt.checkpw(old_password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+                return False, "Current password is incorrect"
+
+            # Check if new username already exists
+            check_query = "SELECT id FROM users WHERE username = %s AND id != %s"
+            existing = self.db.execute_query(check_query, (new_username, user_id), fetch_one=True)
+
+            if existing:
+                return False, "Username is already taken"
+
+            # Update username
+            query = "UPDATE users SET username = %s, updated_at = NOW() WHERE id = %s"
+            self.db.execute_query(query, (new_username, user_id))
+            return True, "Username changed successfully"
+        except Exception as e:
+            logger.error(f"Change username error: {e}")
+            return False, f"Error: {str(e)}"
 
     def change_password(self, user_id, old_password, new_password):
         """Change user password with proper validation"""

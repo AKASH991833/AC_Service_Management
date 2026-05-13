@@ -1,0 +1,411 @@
+/* ========================================
+   VISUAL ENHANCEMENTS
+   Smooth animations & attractive effects
+   ======================================== */
+
+/* ========================================
+   GLOBAL ANIMATIONS
+   ======================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 129, 255, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(255, 129, 255, 0.6); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* ========================================
+   SMOOTH SCROLL & PAGE LOAD
+   ======================================== */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    animation: none;
+}
+
+/* ========================================
+   ENHANCED NAVBAR
+   ======================================== */
+.navbar-custom {
+    animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar-custom .nav-link {
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-custom .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: var(--gradient-primary);
+    transition: left 0.3s ease;
+}
+
+.navbar-custom .nav-link:hover::before {
+    left: 0;
+}
+
+/* ========================================
+   HERO SECTION ENHANCEMENTS
+   ======================================== */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content > * {
+    animation: fadeInUp 0.8s ease-out backwards;
+}
+
+.hero-content > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-content > *:nth-child(2) { animation-delay: 0.2s; }
+.hero-content > *:nth-child(3) { animation-delay: 0.3s; }
+.hero-content > *:nth-child(4) { animation-delay: 0.4s; }
+.hero-content > *:nth-child(5) { animation-delay: 0.5s; }
+
+.hero-badge {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* ========================================
+   SERVICE CARDS ENHANCEMENTS
+   ======================================== */
+.glass-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transition: left 0.6s ease;
+}
+
+.glass-card:hover::before {
+    left: 100%;
+}
+
+.glass-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(255, 129, 255, 0.3);
+    border-color: rgba(255, 129, 255, 0.4);
+}
+
+/* Icon animation on hover */
+.icon-container {
+    transition: all 0.4s ease;
+}
+
+.glass-card:hover .icon-container {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 10px 30px rgba(255, 129, 255, 0.4);
+}
+
+/* ========================================
+   BUTTON ENHANCEMENTS
+   ======================================== */
+.btn-primary-glow {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn-primary-glow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+    z-index: -1;
+}
+
+.btn-primary-glow:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary-glow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 129, 255, 0.5);
+}
+
+/* ========================================
+   SECTION ANIMATIONS
+   ======================================== */
+.section-title {
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--gradient-primary);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.section-title:hover::after {
+    width: 100px;
+}
+
+/* ========================================
+   STATS COUNTER ANIMATION
+   ======================================== */
+.stat-number {
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover .stat-number {
+    transform: scale(1.1);
+    text-shadow: 0 0 30px rgba(255, 129, 255, 0.6);
+}
+
+/* ========================================
+   TESTIMONIAL CARDS
+   ======================================== */
+.testimonial-item {
+    transition: all 0.4s ease;
+}
+
+.testimonial-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   WHATSAPP FLOAT ANIMATION
+   ======================================== */
+.whatsapp-float {
+    animation: pulse-glow 2s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1) rotate(10deg);
+    animation: none;
+    box-shadow: 0 10px 30px rgba(37, 211, 102, 0.5);
+}
+
+/* ========================================
+   MOBILE ACTION BAR
+   ======================================== */
+.mobile-action-bar a {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mobile-action-bar a:hover {
+    transform: translateY(-5px);
+}
+
+.mobile-action-bar a i {
+    transition: transform 0.3s ease;
+}
+
+.mobile-action-bar a:hover i {
+    transform: scale(1.2);
+}
+
+/* ========================================
+   SCROLL TO TOP ENHANCEMENT
+   ======================================== */
+.scroll-to-top {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.scroll-to-top:hover {
+    transform: translateY(-8px) scale(1.1);
+    box-shadow: 0 15px 40px rgba(255, 129, 255, 0.5);
+}
+
+/* ========================================
+   THEME TOGGLE ENHANCEMENT
+   ======================================== */
+.theme-toggle-btn {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.theme-toggle-btn:hover {
+    transform: rotate(180deg) scale(1.1);
+}
+
+.theme-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+/* ========================================
+   LIGHT MODE ENHANCEMENTS
+   ======================================== */
+body.light-mode .glass-card {
+    transition: all 0.4s ease;
+}
+
+body.light-mode .glass-card:hover {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+body.light-mode .btn-primary-glow {
+    box-shadow: 0 5px 20px rgba(255, 129, 255, 0.3);
+}
+
+body.light-mode .btn-primary-glow:hover {
+    box-shadow: 0 15px 40px rgba(255, 129, 255, 0.4);
+}
+
+/* ========================================
+   LOADING SCREEN ENHANCEMENT
+   ======================================== */
+#loading-screen {
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.loader-logo {
+    animation: float 2s ease-in-out infinite, pulse-glow 2s ease-in-out infinite;
+}
+
+/* ========================================
+   AOS ANIMATION OVERRIDES
+   ======================================== */
+[data-aos] {
+    transition-duration: 0.6s;
+    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ========================================
+   FOOTER ENHANCEMENTS
+   ======================================== */
+.footer-links a {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.footer-links a::before {
+    content: '→';
+    position: absolute;
+    left: -20px;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.footer-links a:hover {
+    padding-left: 20px;
+}
+
+.footer-links a:hover::before {
+    opacity: 1;
+    left: 0;
+}
+
+.social-icons a {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.social-icons a:hover {
+    transform: translateY(-5px) rotate(360deg);
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 768px) {
+    .glass-card:hover {
+        transform: translateY(-5px) scale(1.01);
+    }
+    
+    .hero-content > * {
+        animation-duration: 0.6s;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+    .whatsapp-float,
+    .mobile-action-bar,
+    .scroll-to-top,
+    .theme-toggle-btn,
+    #cursor-trail,
+    #particles-container {
+        display: none !important;
+    }
+}

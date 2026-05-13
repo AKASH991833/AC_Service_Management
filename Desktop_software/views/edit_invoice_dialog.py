@@ -257,7 +257,7 @@ class EditInvoiceDialog(QDialog):
         payment_layout.addRow("Balance Amount:", self.balance_label)
         
         self.payment_mode_combo = QComboBox()
-        self.payment_mode_combo.addItems(["Cash", "Card", "UPI", "Bank Transfer", "Cheque", "Other"])
+        self.payment_mode_combo.addItems(["Cash", "Card", "UPI", "Bank Transfer", "Cheque", "Pending"])
         payment_layout.addRow("Payment Mode:", self.payment_mode_combo)
         
         self.payment_status_combo = QComboBox()

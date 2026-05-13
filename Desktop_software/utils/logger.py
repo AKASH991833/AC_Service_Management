@@ -84,6 +84,8 @@ def setup_logging(app_name="AC_Service_Billing", log_dir="logs", level=logging.I
     # Console handler with colors
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
     console_handler.setFormatter(ColoredFormatter(
         '%(asctime)s | %(levelname)-8s | %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'

@@ -60,6 +60,7 @@ class DatabaseConnection:
                 'database': DB_CONFIG['database'],
                 'port': DB_CONFIG['port'],
                 'charset': DB_CONFIG['charset'],
+                'use_pure': DB_CONFIG.get('use_pure', False),
                 'use_unicode': True,
                 'autocommit': DB_CONFIG.get('autocommit', True),
                 'connection_timeout': DB_CONFIG.get('connection_timeout', 60),

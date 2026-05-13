@@ -25,7 +25,8 @@ import os
 from functools import wraps
 from models import db, ServiceRequest, ContactMessage, Admin, WebsiteSetting, GalleryImage, Testimonial, Service, Product
 from whatsapp import send_whatsapp_service_confirmation, send_whatsapp_contact_confirmation
-from datetime import datetime
+from datetime import datetime, timezone
+import secrets
 from security import (
     log_security_event,
     validate_session,
@@ -38,6 +39,9 @@ from security import (
     track_login_attempt,
     get_client_ip
 )
+
+# Alias for convenience
+require_admin = require_admin_enhanced
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +113,17 @@ def validate_service_request(data):
             errors.append('Please enter a valid email address')
 
     return errors
+
+
+def parse_preferred_date(value):
+    """Parse optional YYYY-MM-DD date from frontend into a Python date object."""
+    if not value:
+        return None
+
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').date()
+    except (TypeError, ValueError):
+        raise ValueError('Invalid preferred date format')
 
 
 def validate_contact_message(data):
@@ -194,7 +209,7 @@ def submit_service_request():
             customer_address=data['address'].strip(),
             service_type=data['serviceType'],
             ac_type=data.get('acType', 'Not Specified'),
-            preferred_date=data.get('preferredDate', None) if data.get('preferredDate') else None,
+            preferred_date=parse_preferred_date(data.get('preferredDate')),
             time_slot=data.get('timeSlot', 'Not Specified'),
             message=data.get('message', '').strip() if data.get('message') else None,
             source='Website',
@@ -350,6 +365,7 @@ def submit_contact_message():
 
 
 @api_bp.route('/service-request', methods=['GET'])
+@require_admin
 @limiter.limit("30 per hour")
 def get_service_requests():
     """
@@ -361,7 +377,7 @@ def get_service_requests():
         limit = min(int(request.args.get('limit', 50)), 100)
         offset = int(request.args.get('offset', 0))
 
-        query = ServiceRequest.query
+        query = ServiceRequest.query.filter_by(is_deleted=False)
 
         if status:
             query = query.filter_by(request_status=status)
@@ -377,7 +393,7 @@ def get_service_requests():
         }), 200
 
     except Exception as e:
-        print(f"Error fetching service requests: {str(e)}")
+        logger.error(f"Error fetching service requests: {str(e)}", exc_info=True)
         return jsonify({
             "success": False,
             "message": "Failed to fetch service requests"
@@ -385,6 +401,7 @@ def get_service_requests():
 
 
 @api_bp.route('/contact', methods=['GET'])
+@require_admin
 @limiter.limit("30 per hour")
 def get_contact_messages():
     """
@@ -396,7 +413,7 @@ def get_contact_messages():
         limit = min(int(request.args.get('limit', 50)), 100)
         offset = int(request.args.get('offset', 0))
 
-        query = ContactMessage.query
+        query = ContactMessage.query.filter_by(is_deleted=False)
 
         if status:
             query = query.filter_by(status=status)
@@ -412,7 +429,7 @@ def get_contact_messages():
         }), 200
 
     except Exception as e:
-        print(f"Error fetching contact messages: {str(e)}")
+        logger.error(f"Error fetching contact messages: {str(e)}", exc_info=True)
         return jsonify({
             "success": False,
             "message": "Failed to fetch contact messages"
@@ -455,9 +472,8 @@ def admin_login():
             }), 400
 
         # Check if account is locked due to failed attempts
-        # TEMPORARILY DISABLED FOR TESTING
         lock_status = track_login_attempt(username, client_ip, success=False)
-        if False and lock_status.get('is_locked'):  # LOCK DISABLED
+        if lock_status.get('is_locked'):
             log_security_event('LOGIN_ATTEMPT_LOCKED', {
                 'username': username,
                 'ip': client_ip,
@@ -501,15 +517,25 @@ def admin_login():
         # Successful login - clear attempt tracking
         track_login_attempt(username, client_ip, success=True)
         
-        # Update last login
-        admin.last_login = datetime.utcnow()
+        # Generate session token for cross-origin requests
+        import secrets
+        session_token = secrets.token_urlsafe(32)
+        
+        # Regenerate session to prevent session fixation
+        old_admin_id = admin.id
+        old_admin_username = admin.username
+        session.clear()
+        session['admin_id'] = old_admin_id
+        session['admin_username'] = old_admin_username
+        session['csrf_token'] = secrets.token_hex(32)
+        session['session_token'] = session_token  # Store token for API auth
+        session.permanent = True
+        
+        # Update last login and session token
+        admin.last_login = datetime.now(timezone.utc)
+        admin.session_token = session_token
         db.session.commit()
         logger.info(f"Updated last login for: {username}")
-
-        # Set session
-        session['admin_id'] = admin.id
-        session['admin_username'] = admin.username  # Store username for activity logging
-        logger.info(f"Session set for admin_id: {admin.id}, username: {admin.username}")
 
         logger.info(f"✅ Admin logged in successfully: {username}")
 
@@ -524,7 +550,8 @@ def admin_login():
             "success": True,
             "message": "Login successful",
             "data": {
-                "admin": admin.to_dict()
+                "admin": admin.to_dict(),
+                "session_token": session_token
             }
         }), 200)
 
@@ -532,7 +559,7 @@ def admin_login():
         origin = request.headers.get('Origin', '*')
         response.headers.add('Access-Control-Allow-Origin', origin)
         response.headers.add('Access-Control-Allow-Credentials', 'true')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,X-API-KEY')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,X-API-KEY,X-Session-Token,X-CSRF-Token')
         response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
         response.headers.add('Access-Control-Expose-Headers', 'Set-Cookie')
 
@@ -544,7 +571,7 @@ def admin_login():
         logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({
             "success": False,
-            "message": f"Login failed: {str(e)}"
+            "message": "An internal error occurred. Please try again later."
         }), 500
 
 
@@ -563,7 +590,7 @@ def admin_logout():
 @require_admin
 def get_current_admin():
     """Get current admin info"""
-    admin = Admin.query.get(session['admin_id'])
+    admin = db.session.get(Admin, session['admin_id'])
     return jsonify({
         "success": True,
         "data": admin.to_dict()
@@ -575,7 +602,7 @@ def get_current_admin():
 def get_admin_profile():
     """Get current admin profile"""
     try:
-        admin = Admin.query.get(session['admin_id'])
+        admin = db.session.get(Admin, session['admin_id'])
         
         if not admin:
             return jsonify({
@@ -599,10 +626,10 @@ def get_admin_profile():
 @api_bp.route('/admin/profile', methods=['PUT'])
 @require_admin
 def update_admin_profile():
-    """Update admin profile"""
+    """Update admin profile with secure username change"""
     try:
-        data = request.get_json()
-        admin = Admin.query.get(session['admin_id'])
+        data = request.get_json() or {}
+        admin = db.session.get(Admin, session['admin_id'])
         
         if not admin:
             return jsonify({
@@ -610,9 +637,60 @@ def update_admin_profile():
                 "message": "Admin not found"
             }), 404
         
-        # Update fields
-        if 'full_name' in data and data['full_name']:
-            admin.full_name = data['full_name'].strip()
+        current_password = data.get('current_password', '')
+        requested_username = data.get('username')
+
+        if requested_username is not None:
+            new_username = sanitize_input(requested_username, 30).strip().lower()
+
+            if not new_username:
+                return jsonify({
+                    "success": False,
+                    "message": "Username cannot be empty"
+                }), 400
+
+            if not re.match(r'^[a-z0-9._-]{4,30}$', new_username):
+                return jsonify({
+                    "success": False,
+                    "message": "Username must be 4-30 characters and use only letters, numbers, dot, underscore or hyphen"
+                }), 400
+
+            if new_username != admin.username:
+                old_username = admin.username
+                if not current_password:
+                    return jsonify({
+                        "success": False,
+                        "message": "Current password is required to change username"
+                    }), 400
+
+                if not admin.check_password(current_password):
+                    log_security_event('FAILED_USERNAME_CHANGE', {
+                        'admin_id': admin.id,
+                        'username': admin.username,
+                        'ip': get_client_ip()
+                    })
+                    return jsonify({
+                        "success": False,
+                        "message": "Current password is incorrect"
+                    }), 401
+
+                existing = Admin.query.filter_by(username=new_username).first()
+                if existing:
+                    return jsonify({
+                        "success": False,
+                        "message": "Username already taken"
+                    }), 400
+
+                admin.username = new_username
+                log_security_event('USERNAME_CHANGED', {
+                    'admin_id': admin.id,
+                    'old_username': old_username,
+                    'new_username': new_username,
+                    'ip': get_client_ip()
+                })
+
+        if 'full_name' in data and data['full_name'] is not None:
+            admin.full_name = sanitize_input(data['full_name'], 100).strip()
         
         if 'email' in data and data['email']:
             # Validate email
@@ -623,10 +701,10 @@ def update_admin_profile():
                     "success": False,
                     "message": error_msg or "Invalid email"
                 }), 400
-            admin.email = data['email'].strip()
+            admin.email = data['email'].strip().lower()
         
         if 'phone' in data and data['phone']:
-            admin.phone = data['phone'].strip()
+            admin.phone = sanitize_input(data['phone'], 20).strip()
         
         db.session.commit()
         
@@ -653,8 +731,8 @@ def update_admin_profile():
 def change_admin_password():
     """Change admin password"""
     try:
-        data = request.get_json()
-        admin = Admin.query.get(session['admin_id'])
+        data = request.get_json() or {}
+        admin = db.session.get(Admin, session['admin_id'])
         
         if not admin:
             return jsonify({
@@ -664,6 +742,7 @@ def change_admin_password():
         
         current_password = data.get('current_password', '')
         new_password = data.get('new_password', '')
+        confirm_password = data.get('confirm_password', '')
         
         # Validate inputs
         if not current_password or not new_password:
@@ -671,12 +750,29 @@ def change_admin_password():
                 "success": False,
                 "message": "Current and new password are required"
             }), 400
+
+        if new_password != confirm_password:
+            return jsonify({
+                "success": False,
+                "message": "New passwords do not match"
+            }), 400
         
         # Verify current password
         if not admin.check_password(current_password):
+            log_security_event('FAILED_PASSWORD_CHANGE', {
+                'admin_id': admin.id,
+                'username': admin.username,
+                'ip': get_client_ip()
+            })
             return jsonify({
                 "success": False,
                 "message": "Current password is incorrect"
+            }), 401
+
+        if current_password == new_password:
+            return jsonify({
+                "success": False,
+                "message": "New password must be different from current password"
             }), 400
         
         # Validate new password strength
@@ -720,11 +816,11 @@ def change_admin_password():
 def get_admin_stats():
     """Get dashboard statistics"""
     try:
-        total_messages = ContactMessage.query.count()
-        total_requests = ServiceRequest.query.count()
-        pending_requests = ServiceRequest.query.filter_by(request_status='Pending').count()
-        completed_requests = ServiceRequest.query.filter_by(request_status='Completed').count()
-        unread_messages = ContactMessage.query.filter_by(status='unread').count()
+        total_messages = ContactMessage.query.filter_by(is_deleted=False).count()
+        total_requests = ServiceRequest.query.filter_by(is_deleted=False).count()
+        pending_requests = ServiceRequest.query.filter_by(is_deleted=False, request_status='Pending').count()
+        completed_requests = ServiceRequest.query.filter_by(is_deleted=False, request_status='Completed').count()
+        unread_messages = ContactMessage.query.filter_by(is_deleted=False, status='unread').count()
 
         return jsonify({
             "success": True,
@@ -754,7 +850,7 @@ def get_all_messages():
         limit = min(int(request.args.get('limit', 100)), 200)
         offset = int(request.args.get('offset', 0))
 
-        query = ContactMessage.query
+        query = ContactMessage.query.filter_by(is_deleted=False)
 
         if status != 'all':
             query = query.filter_by(status=status)
@@ -782,7 +878,7 @@ def get_all_messages():
 def get_message(id):
     """Get single message details"""
     try:
-        message = ContactMessage.query.get(id)
+        message = db.session.get(ContactMessage, id)
         if not message:
             return jsonify({
                 "success": False,
@@ -808,7 +904,7 @@ def update_message_status(id):
     """Update message status"""
     try:
         data = request.get_json()
-        message = ContactMessage.query.get(id)
+        message = db.session.get(ContactMessage, id)
         
         if not message:
             return jsonify({
@@ -836,6 +932,37 @@ def update_message_status(id):
         }), 500
 
 
+@api_bp.route('/admin/messages/<int:id>', methods=['DELETE'])
+@require_admin
+def delete_message(id):
+    """Soft delete a contact message from the admin dashboard"""
+    try:
+        message = db.session.get(ContactMessage, id)
+        if not message:
+            return jsonify({
+                "success": False,
+                "message": "Message not found"
+            }), 404
+
+        message.is_deleted = True
+        message.deleted_at = datetime.now(timezone.utc)
+        message.status = 'deleted'
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Message deleted successfully"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting message: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": "Failed to delete message"
+        }), 500
+
+
 @api_bp.route('/admin/requests', methods=['GET'])
 @require_admin
 def get_all_requests():
@@ -845,7 +972,7 @@ def get_all_requests():
         limit = min(int(request.args.get('limit', 100)), 200)
         offset = int(request.args.get('offset', 0))
 
-        query = ServiceRequest.query
+        query = ServiceRequest.query.filter_by(is_deleted=False)
 
         if status != 'all':
             query = query.filter_by(request_status=status)
@@ -873,7 +1000,7 @@ def get_all_requests():
 def get_request(id):
     """Get single service request details"""
     try:
-        service_request = ServiceRequest.query.get(id)
+        service_request = db.session.get(ServiceRequest, id)
         if not service_request:
             return jsonify({
                 "success": False,
@@ -899,7 +1026,7 @@ def update_request_status(id):
     """Update service request status"""
     try:
         data = request.get_json()
-        service_request = ServiceRequest.query.get(id)
+        service_request = db.session.get(ServiceRequest, id)
         
         if not service_request:
             return jsonify({
@@ -928,6 +1055,37 @@ def update_request_status(id):
         return jsonify({
             "success": False,
             "message": "Failed to update status"
+        }), 500
+
+
+@api_bp.route('/admin/requests/<int:id>', methods=['DELETE'])
+@require_admin
+def delete_request(id):
+    """Soft delete a service request from the admin dashboard"""
+    try:
+        service_request = db.session.get(ServiceRequest, id)
+        if not service_request:
+            return jsonify({
+                "success": False,
+                "message": "Request not found"
+            }), 404
+
+        service_request.is_deleted = True
+        service_request.deleted_at = datetime.now(timezone.utc)
+        service_request.request_status = 'Deleted'
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Request deleted successfully"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting request: {str(e)}")
+        return jsonify({
+            "success": False,
+            "message": "Failed to delete request"
         }), 500
 
 
@@ -1117,7 +1275,6 @@ def upload_gallery_image():
         # Create uploads directory if it doesn't exist
         import os
         from werkzeug.utils import secure_filename
-        from datetime import datetime
 
         uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads', 'gallery')
         os.makedirs(uploads_dir, exist_ok=True)
@@ -1175,7 +1332,7 @@ def delete_gallery_image(id):
     try:
         import os
 
-        image = GalleryImage.query.get(id)
+        image = db.session.get(GalleryImage, id)
         if not image:
             return jsonify({
                 "success": False,

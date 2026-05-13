@@ -85,7 +85,7 @@ DB_CONFIG = {
     'database': db_config['name'],
     'port': db_config['port'],
     'charset': 'utf8mb4',
-    'use_pure': True,  # Pure Python driver for better compatibility
+    'use_pure': True,  # Use Pure Python for better compatibility
     'use_unicode': True,
     'connection_timeout': 60,  # Increased timeout for stability
     'autocommit': True,

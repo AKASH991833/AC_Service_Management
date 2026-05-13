@@ -33,30 +33,26 @@ class Queries:
         return "SELECT COUNT(*) as count FROM customers WHERE is_active = TRUE"
 
     @staticmethod
-    def get_total_invoices(period_condition):
-        # period_condition should be a tuple: (condition_string, params_tuple)
-        if isinstance(period_condition, tuple):
-            return f"""
+    def get_total_invoices(period_condition=None):
+        # Returns (query, params) tuple for safe parameterized execution
+        if period_condition and isinstance(period_condition, tuple):
+            query = f"""
             SELECT COUNT(*) as count FROM invoices
             WHERE is_active = TRUE {period_condition[0]}
             """
-        return f"""
-        SELECT COUNT(*) as count FROM invoices
-        WHERE is_active = TRUE {period_condition}
-        """
+            return query, period_condition[1] if len(period_condition) > 1 else ()
+        return "SELECT COUNT(*) as count FROM invoices WHERE is_active = TRUE", ()
 
     @staticmethod
-    def get_total_revenue(period_condition):
-        # period_condition should be a tuple: (condition_string, params_tuple)
-        if isinstance(period_condition, tuple):
-            return f"""
+    def get_total_revenue(period_condition=None):
+        # Returns (query, params) tuple for safe parameterized execution
+        if period_condition and isinstance(period_condition, tuple):
+            query = f"""
             SELECT COALESCE(SUM(total_amount), 0) as revenue FROM invoices
             WHERE is_active = TRUE {period_condition[0]}
             """
-        return f"""
-        SELECT COALESCE(SUM(total_amount), 0) as revenue FROM invoices
-        WHERE is_active = TRUE {period_condition}
-        """
+            return query, period_condition[1] if len(period_condition) > 1 else ()
+        return "SELECT COALESCE(SUM(total_amount), 0) as revenue FROM invoices WHERE is_active = TRUE", ()
 
     @staticmethod
     def get_pending_payments():
@@ -150,8 +146,8 @@ class Queries:
             invoice_number, customer_id, ac_brand_id, ac_type, star_rating,
             ton_capacity, inverter_type, technician_id, subtotal, gst_percentage,
             gst_amount, total_amount, advance_payment, balance_amount,
-            payment_mode, payment_status, notes, is_active
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, TRUE)
+            payment_mode, payment_status, notes, is_active, is_deleted
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, TRUE, FALSE)
         """
     
     @staticmethod

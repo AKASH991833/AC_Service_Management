@@ -1,0 +1,361 @@
+/* ========================================
+   THEME OVERRIDES & CRITICAL STYLES
+   Extracted from inline styles in index.html
+   ======================================== */
+
+/* Smooth animations and transitions enabled */
+*, *::before, *::after {
+    transition: all 0.3s ease;
+}
+
+:root {
+    /* Brand Colors Override */
+    --primary-bg: #0C0E1D !important;
+    --secondary-bg: #211F36 !important;
+    --accent-gray: #616083 !important;
+    --primary-glow: #FF81FF !important;
+    --success-accent: #51FAAA !important;
+    --soft-purple: #AB7DE3 !important;
+    --gradient-primary: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    --gradient-success: linear-gradient(135deg, #51FAAA, #00F5FF) !important;
+    --text-white: #ffffff !important;
+    --border-light: rgba(255, 255, 255, 0.1) !important;
+}
+
+body { background: #0C0E1D !important; }
+
+.btn-primary-glow {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    box-shadow: 0 10px 30px rgba(255, 129, 255, 0.4) !important;
+}
+
+.section-title {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+.navbar-brand {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+/* Enhanced Navbar Glassmorphism */
+.navbar-custom {
+    background: rgba(12, 14, 29, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.navbar-custom.scrolled {
+    background: rgba(12, 14, 29, 0.95) !important;
+    box-shadow: 0 8px 40px rgba(255, 129, 255, 0.2) !important;
+}
+
+.navbar-custom .nav-link {
+    position: relative;
+    transition: all 0.3s ease !important;
+}
+
+.navbar-custom .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #FF81FF, #51FAAA);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.navbar-custom .nav-link:hover::after {
+    width: 80%;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.product-badge {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+}
+
+.price.buy { color: #FF81FF !important; }
+.price.rent { color: #51FAAA !important; }
+
+.service-price .price-amount {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+}
+
+.icon-container {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+}
+
+.stat-number {
+    background: linear-gradient(135deg, #FF81FF, #51FAAA) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+.testimonial-item img {
+    border-color: #FF81FF !important;
+}
+
+.footer-section h3 {
+    background: linear-gradient(135deg, #FF81FF, #51FAAA) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+.social-icons a:hover {
+    background: #FF81FF !important;
+}
+
+.footer-links a:hover {
+    color: #51FAAA !important;
+}
+
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #FF81FF;
+    font-size: 1.1rem;
+    backdrop-filter: blur(10px);
+}
+
+.theme-toggle-btn:hover {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    border-color: transparent;
+    color: #ffffff;
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(255, 129, 255, 0.4);
+}
+
+/* ===== LIGHT MODE THEME ===== */
+body.light-mode {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+body.light-mode .hero-section {
+    background: #f8f9fa !important;
+}
+
+body.light-mode .hero-title-line {
+    color: #1a1a2e !important;
+    -webkit-text-fill-color: #1a1a2e !important;
+}
+
+body.light-mode .hero-title-accent {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+body.light-mode .hero-description {
+    color: rgba(0, 0, 0, 0.8) !important;
+}
+
+body.light-mode .hero-badge {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-color: rgba(255, 129, 255, 0.3) !important;
+    color: #1a1a2e !important;
+}
+
+body.light-mode .trust-badge {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    color: #1a1a2e !important;
+}
+
+body.light-mode .glass-card {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-mode .glass-card p,
+body.light-mode .glass-card span,
+body.light-mode .glass-card h3,
+body.light-mode .glass-card h4,
+body.light-mode .glass-card h5 {
+    color: #1a1a2e !important;
+}
+
+body.light-mode .contact-form {
+    color: #1a1a2e !important;
+}
+
+body.light-mode .contact-form h3,
+body.light-mode .contact-form h5 {
+    color: #1a1a2e !important;
+}
+
+body.light-mode .contact-form p {
+    color: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.light-mode .section-title {
+    color: #1a1a2e !important;
+    -webkit-text-fill-color: #1a1a2e !important;
+}
+
+body.light-mode .section-subtitle {
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode h5,
+body.light-mode h6 {
+    color: #1a1a2e !important;
+}
+
+body.light-mode p {
+    color: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.light-mode .glass-card {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-mode .glass-card p,
+body.light-mode .glass-card span {
+    color: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.light-mode .hero-description {
+    color: rgba(0, 0, 0, 0.8) !important;
+}
+
+body.light-mode .navbar-custom {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-mode .navbar-brand {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    filter: brightness(1.1);
+}
+
+body.light-mode .nav-link {
+    color: #211F36 !important;
+}
+
+body.light-mode .nav-link:hover {
+    color: #FF81FF !important;
+}
+
+body.light-mode .theme-toggle-btn {
+    background: rgba(12, 14, 29, 0.08);
+    border-color: rgba(12, 14, 29, 0.15);
+    color: #AB7DE3;
+}
+
+body.light-mode .theme-toggle-btn:hover {
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    color: #ffffff;
+}
+
+body.light-mode .hero-section {
+    background: #f8f9fa;
+}
+
+body.light-mode .hero-title-line {
+    color: #0C0E1D !important;
+}
+
+body.light-mode .hero-badge {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-color: rgba(255, 129, 255, 0.3) !important;
+    color: #AB7DE3 !important;
+}
+
+body.light-mode .hero-subtitle {
+    color: rgba(0, 0, 0, 0.8) !important;
+}
+
+body.light-mode .subtitle-item {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    color: #211F36 !important;
+}
+
+body.light-mode .trust-indicators {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light-mode .trust-number {
+    -webkit-text-fill-color: unset !important;
+    color: #FF81FF !important;
+    background: linear-gradient(135deg, #FF81FF, #51FAAA) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+body.light-mode .trust-label {
+    color: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.light-mode .section-title {
+    color: #0C0E1D !important;
+    background: linear-gradient(135deg, #FF81FF, #AB7DE3) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+body.light-mode .glass-card {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-mode .blob {
+    opacity: 0.3;
+}
+
+body.light-mode .scroll-indicator {
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
+body.light-mode .hero-indicators {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light-mode .hero-dot {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+body.light-mode .hero-arrow {
+    background: rgba(0, 0, 0, 0.08) !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    color: #211F36 !important;
+}

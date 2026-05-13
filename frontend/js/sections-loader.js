@@ -18,6 +18,7 @@ const SectionsLoader = (function() {
             const container = document.getElementById(containerId);
             if (container) {
                 container.innerHTML = cache.get(filePath);
+                executeScripts(container);
                 console.log(`SectionsLoader: Loaded "${filePath}" from cache`);
             }
             return;
@@ -25,7 +26,7 @@ const SectionsLoader = (function() {
 
         try {
             // Add cache-busting to force fresh load
-            const bustKey = '?v=20260328';
+            const bustKey = '?v=2026040403';
             const response = await fetch(filePath + bustKey);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -39,6 +40,8 @@ const SectionsLoader = (function() {
             const container = document.getElementById(containerId);
             if (container) {
                 container.innerHTML = html;
+                // Execute any scripts in the loaded content
+                executeScripts(container);
             }
 
             console.log(`SectionsLoader: Loaded "${filePath}"`);
@@ -50,15 +53,15 @@ const SectionsLoader = (function() {
                 const sectionName = filePath.replace('sections/', '').replace('.html', '');
                 container.innerHTML = `
                     <div class="section-load-error" style="
-                        text-align: center; 
-                        padding: 40px; 
-                        background: rgba(255,255,255,0.05); 
+                        text-align: center;
+                        padding: 40px;
+                        background: rgba(255,255,255,0.05);
                         border-radius: 10px;
                         margin: 20px 0;
                     ">
                         <i class="fas fa-exclamation-triangle" style="
-                            font-size: 3rem; 
-                            color: #ff4757; 
+                            font-size: 3rem;
+                            color: #ff4757;
                             margin-bottom: 15px;
                         "></i>
                         <h3 style="color: #fff; margin-bottom: 10px;">Content Loading...</h3>
@@ -72,6 +75,29 @@ const SectionsLoader = (function() {
                 `;
             }
         }
+    }
+
+    /**
+     * Execute scripts in loaded content
+     */
+    function executeScripts(container) {
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            
+            // Copy all attributes
+            Array.from(oldScript.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            
+            // Copy script content
+            newScript.textContent = oldScript.textContent;
+            
+            // Replace old script with new one
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+            
+            console.log('SectionsLoader: Executed script from loaded content');
+        });
     }
 
     /**

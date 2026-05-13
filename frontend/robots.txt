@@ -2,20 +2,10 @@
 # https://anshaircool.com/robots.txt
 
 User-agent: *
-Allow: /
-
-# Allow all pages
-Allow: /index.html
-Allow: /admin/
-
-# Disallow backend API from being crawled
+Disallow: /admin/
 Disallow: /backend/
 Disallow: /api/
-
-# Disallow uploads folder
 Disallow: /uploads/
-
-# Disallow archive
 Disallow: /archive/
 
 # Sitemap location

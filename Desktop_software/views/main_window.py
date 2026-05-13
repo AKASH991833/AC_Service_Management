@@ -390,8 +390,13 @@ class MainWindow(QMainWindow):
                 return
 
         # Dashboard doesn't exist - create new one
+        from database.db_connection import DatabaseConnection
+        from controllers.dashboard_controller import DashboardController
         from views.enhanced_dashboard_view import EnhancedDashboardView
-        view = EnhancedDashboardView(self.user_data)
+        
+        db = DatabaseConnection()
+        controller = DashboardController(db)
+        view = EnhancedDashboardView(self.user_data, db, controller)
         self.stacked_widget.addWidget(view)
         # CRITICAL: Explicitly set the index to the newly added widget
         self.stacked_widget.setCurrentIndex(self.stacked_widget.count() - 1)
@@ -525,7 +530,7 @@ class MainWindow(QMainWindow):
         """Helper to switch views with proper cleanup"""
         current_widget = self.stacked_widget.currentWidget()
 
-        # Cleanup OnlineRequestView timer if active
+        # Cleanup view timers if active (Dashboard, OnlineRequestView, etc.)
         if current_widget and hasattr(current_widget, 'cleanup'):
             try:
                 current_widget.cleanup()

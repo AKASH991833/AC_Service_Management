@@ -57,45 +57,25 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- AOS Animation Library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/variables.css?v=20260328">
-    <link rel="stylesheet" href="css/components.css?v=20260328">
-    <link rel="stylesheet" href="css/animations.css?v=20260328">
-    <link rel="stylesheet" href="css/enhanced-responsive.css?v=20260328">
-    <link rel="stylesheet" href="css/responsive.css?v=20260328">
-    <link rel="stylesheet" href="css/style.css?v=20260328">
-    <link rel="stylesheet" href="css/product-tabs.css?v=20260328">
-    <!-- 🎨 PREMIUM UI/UX OVERHAUL — Must be LAST to override all -->
-    <link rel="stylesheet" href="css/premium-overhaul.css?v=20260328">
+    <!-- Custom CSS (Bundled Core + Specialized) -->
+    <link rel="stylesheet" href="css/bundle-core.css?v=2026040307">
+    <link rel="stylesheet" href="css/theme-overrides.css?v=2026040307">
+    <link rel="stylesheet" href="css/style.css?v=2026040307">
+    <link rel="stylesheet" href="css/product-tabs.css?v=2026040307">
+    <!-- PREMIUM UI/UX OVERHAUL - Must be LAST to override all -->
+    <link rel="stylesheet" href="css/premium-overhaul.css?v=2026040307">
+    <!-- Final professional UI polish layer -->
+    <link rel="stylesheet" href="css/pro-polish.css?v=2026042910">
+    <!-- Visual Enhancements & Animations -->
+    <link rel="stylesheet" href="css/visual-enhancements.css?v=2026040307">
+    <!-- Advanced Customer Features -->
+    <link rel="stylesheet" href="css/advanced-features.css?v=2026040307">
+    <!-- Ultra Premium Design Overrides -->
+    <link rel="stylesheet" href="css/ultra-premium.css?v=2026040307">
 </head>
 <body>
-
-    <!-- Loading Screen -->
-    <div id="loading-screen">
-        <div class="loader-container">
-            <div class="loader-logo">
-                <i class="fas fa-snowflake"></i>
-            </div>
-            <div class="loader-text">Ansh Air Cool</div>
-            <div class="loader-spinner"></div>
-        </div>
-    </div>
-
-    <!-- Cursor Trail -->
-    <div id="cursor-trail"></div>
-
-    <!-- Particle Container -->
-    <div id="particles-container"></div>
-
-    <!-- Animated Background Blobs -->
-    <div class="animated-bg">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+    <!-- Skip Navigation for Accessibility -->
+    <a href="#home" class="skip-to-content" aria-label="Skip to main content">Skip to main content</a>
 
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-custom">
@@ -107,12 +87,18 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                     <li class="nav-item"><a class="nav-link" href="#products">Buy & Rent</a></li>
                     <li class="nav-item"><a class="nav-link" href="#testimonials">Reviews</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <!-- Theme Toggle Button -->
+                    <li class="nav-item ms-2">
+                        <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle theme">
+                            <i class="fas fa-moon" id="themeIcon"></i>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -150,11 +136,24 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
+    <!-- Mobile Quick Actions -->
+    <div class="mobile-action-bar" aria-label="Quick actions">
+        <a href="tel:+919819104977">
+            <i class="fas fa-phone-alt"></i>
+            <span>Call</span>
+        </a>
+        <a href="#contact">
+            <i class="fas fa-calendar-check"></i>
+            <span>Book</span>
+        </a>
+        <a href="https://wa.me/919819104977" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
+        </a>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- AOS Animation Library -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <!-- Custom JavaScript (Correct Loading Order) -->
     <!-- 1. Settings (defines FRONTEND_SETTINGS and API_CONFIG) -->
@@ -163,9 +162,7 @@
     <script src="js/validation.js?v=20260327"></script>
     <!-- 3. API Module (uses API_CONFIG and Validation) -->
     <script src="js/api.js?v=20260327"></script>
-    <!-- 4. UI Effects (cursor, particles, loading screen) -->
-    <script src="js/ui-effects.js?v=20260327"></script>
-    <!-- 5. Sections Loader (loads HTML sections) -->
+    <!-- 4. Sections Loader (loads HTML sections) -->
     <script src="js/sections-loader.js?v=20260327"></script>
     <!-- 6. Lazy Loader (image lazy loading) -->
     <script src="js/lazy-loader.js?v=20260327"></script>
@@ -174,7 +171,9 @@
     <!-- 8. Dynamic Content Loader (loads from Admin Panel API) -->
     <script src="js/dynamic-content.js?v=20260327"></script>
     <!-- 9. Main Entry Point (initializes everything) -->
-    <script src="js/main.js?v=20260327"></script>
+    <script src="js/main.js?v=2026042906"></script>
+    <!-- 10. Instant Booking Widget -->
+    <script src="js/instant-booking.js?v=2026040307"></script>
 
     <!-- Structured Data (JSON-LD) for Local Business -->
     <script type="application/ld+json">
@@ -269,6 +268,36 @@
             ]
         }
     }
+    </script>
+
+    <!-- Theme Toggle Script -->
+    <script>
+    (function() {
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+
+        // Check saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
+            themeIcon.className = 'fas fa-sun';
+        }
+
+        // Toggle theme
+        themeToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            body.classList.toggle('light-mode');
+
+            if (body.classList.contains('light-mode')) {
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'light');
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    })();
     </script>
 </body>
 </html>

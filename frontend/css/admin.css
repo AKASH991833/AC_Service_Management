@@ -1048,7 +1048,6 @@ body {
 /* Modal */
 .modal-content.glass-modal {
     background: var(--card-bg);
-    backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
 }
 

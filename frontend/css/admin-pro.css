@@ -335,6 +335,102 @@
 }
 
 /* ── Premium Data Table ───────────────────────────────────────── */
+.table-responsive {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(20,18,42,0.92) 0%, rgba(12,11,27,0.96) 100%);
+}
+
+.admin-table {
+    --bs-table-bg: transparent;
+    --bs-table-color: rgba(255,255,255,0.88);
+    --bs-table-border-color: rgba(255,255,255,0.08);
+    --bs-table-striped-bg: rgba(255,255,255,0.02);
+    --bs-table-striped-color: rgba(255,255,255,0.88);
+    --bs-table-hover-bg: rgba(255,129,255,0.06);
+    --bs-table-hover-color: #fff;
+    --bs-table-active-bg: rgba(255,129,255,0.08);
+    --bs-table-active-color: #fff;
+    margin-bottom: 0;
+    color: rgba(255,255,255,0.88);
+    background: transparent;
+}
+
+.admin-table > :not(caption) > * > * {
+    background: transparent !important;
+    color: inherit;
+    border-bottom-color: rgba(255,255,255,0.08);
+    box-shadow: none !important;
+}
+
+.admin-table thead th {
+    background: rgba(255,255,255,0.04) !important;
+    color: rgba(255,255,255,0.7) !important;
+    padding: 13px 16px;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-table thead th i {
+    color: rgba(255,129,255,0.7);
+}
+
+.admin-table tbody tr {
+    transition: var(--transition-smooth);
+}
+
+.admin-table tbody tr:hover {
+    background: rgba(255,129,255,0.05) !important;
+}
+
+.admin-table tbody td {
+    padding: 14px 16px;
+    color: rgba(255,255,255,0.88) !important;
+    vertical-align: middle;
+}
+
+#msgCount,
+#reqCount {
+    color: rgba(255,255,255,0.72);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+}
+
+#msgCount strong,
+#reqCount strong {
+    color: #fff;
+}
+
+#messages-section .card-header h4,
+#service-requests-section .card-header h4 {
+    color: #fff;
+}
+
+#messages-section .form-select,
+#service-requests-section .form-select {
+    background-color: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+    color: #fff;
+}
+
+#messages-section .form-select:focus,
+#service-requests-section .form-select:focus {
+    background-color: rgba(255,255,255,0.08);
+    border-color: rgba(255,129,255,0.4);
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(255,129,255,0.08);
+}
+
+#messages-section .form-select option,
+#service-requests-section .form-select option {
+    background: #1a1830;
+    color: #fff;
+}
+
 .data-table {
     width: 100%;
     border-collapse: separate;

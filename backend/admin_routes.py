@@ -8,15 +8,16 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import os
 import json
+import re
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timezone
 from models import (
     db, Admin, WebsiteSetting, WebsiteContent, 
     Service, Product, Testimonial, GalleryImage,
     ContactMessage, ServiceRequest
 )
 from werkzeug.utils import secure_filename
-from security import log_security_event, validate_session, require_admin_enhanced, add_security_headers, validate_csrf_token
+from security import log_security_event, validate_session, require_admin_enhanced, add_security_headers, validate_csrf_token, sanitize_input
 from image_optimizer import get_image_optimizer
 
 logger = None
@@ -40,7 +41,6 @@ require_admin = require_admin_enhanced
 # ========================================
 
 @admin_bp.route('/section/hero', methods=['GET'])
-@require_admin
 @limiter.limit("100 per hour")
 def get_hero_section():
     """Get Hero section content"""
@@ -110,11 +110,10 @@ def update_hero_section():
 # ========================================
 
 @admin_bp.route('/section/services', methods=['GET'])
-@require_admin
 def get_services_section():
     """Get all services"""
     try:
-        services = Service.query.order_by(Service.display_order).all()
+        services = Service.query.filter_by(is_deleted=False).order_by(Service.display_order).all()
         return jsonify({"success": True, "data": [s.to_dict() for s in services]}), 200
     except Exception as e:
         if logger: logger.error(f"Error getting services: {str(e)}")
@@ -155,12 +154,26 @@ def create_service():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
+@admin_bp.route('/section/services/<int:id>', methods=['GET'])
+def get_service(id):
+    """Get a single service"""
+    try:
+        service = db.session.get(Service, id)
+        if not service or service.is_deleted:
+            return jsonify({"success": False, "message": "Service not found"}), 404
+
+        return jsonify({"success": True, "data": service.to_dict()}), 200
+    except Exception as e:
+        if logger: logger.error(f"Error getting service: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 @admin_bp.route('/section/services/<int:id>', methods=['PUT'])
 @require_admin
 def update_service(id):
     """Update service"""
     try:
-        service = Service.query.get(id)
+        service = db.session.get(Service, id)
         if not service:
             return jsonify({"success": False, "message": "Service not found"}), 404
         
@@ -202,19 +215,23 @@ def update_service(id):
 @admin_bp.route('/section/services/<int:id>', methods=['DELETE'])
 @require_admin
 def delete_service(id):
-    """Delete service"""
+    """Soft-delete service to maintain FK integrity with invoices"""
     try:
-        service = Service.query.get(id)
+        service = db.session.get(Service, id)
         if not service:
             return jsonify({"success": False, "message": "Service not found"}), 404
         
-        db.session.delete(service)
+        # Soft delete: mark as inactive and deleted
+        service.is_deleted = True
+        service.is_active = False
+        service.deleted_at = datetime.now(timezone.utc)
+        
         db.session.commit()
-        return jsonify({"success": True, "message": "Service deleted"}), 200
+        return jsonify({"success": True, "message": "Service deleted successfully"}), 200
     except Exception as e:
         db.session.rollback()
         if logger: logger.error(f"Error deleting service: {str(e)}")
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({"success": False, "message": f"Failed to delete: {str(e)}"}), 500
 
 
 # ========================================
@@ -222,13 +239,12 @@ def delete_service(id):
 # ========================================
 
 @admin_bp.route('/section/products', methods=['GET'])
-@require_admin
 def get_products_section():
     """Get all products"""
     try:
         product_type = request.args.get('type', 'all')
-        query = Product.query
-        
+        query = Product.query.filter_by(is_deleted=False)
+
         if product_type != 'all':
             query = query.filter_by(product_type=product_type)
         
@@ -281,12 +297,26 @@ def create_product():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
+@admin_bp.route('/section/products/<int:id>', methods=['GET'])
+def get_product(id):
+    """Get a single product"""
+    try:
+        product = db.session.get(Product, id)
+        if not product or product.is_deleted:
+            return jsonify({"success": False, "message": "Product not found"}), 404
+
+        return jsonify({"success": True, "data": product.to_dict()}), 200
+    except Exception as e:
+        if logger: logger.error(f"Error getting product: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 @admin_bp.route('/section/products/<int:id>', methods=['PUT'])
 @require_admin
 def update_product(id):
     """Update product"""
     try:
-        product = Product.query.get(id)
+        product = db.session.get(Product, id)
         if not product:
             return jsonify({"success": False, "message": "Product not found"}), 404
         
@@ -318,13 +348,19 @@ def update_product(id):
 @admin_bp.route('/section/products/<int:id>', methods=['DELETE'])
 @require_admin
 def delete_product(id):
-    """Delete product"""
+    """Soft-delete product"""
     try:
-        product = Product.query.get(id)
+        product = db.session.get(Product, id)
         if not product:
             return jsonify({"success": False, "message": "Product not found"}), 404
-        
-        db.session.delete(product)
+
+        if product.is_deleted:
+            return jsonify({"success": False, "message": "Product already deleted"}), 400
+
+        product.is_deleted = True
+        product.is_active = False
+        product.is_available = False
+        product.deleted_at = datetime.now(timezone.utc)
         db.session.commit()
         return jsonify({"success": True, "message": "Product deleted"}), 200
     except Exception as e:
@@ -338,7 +374,6 @@ def delete_product(id):
 # ========================================
 
 @admin_bp.route('/section/testimonials', methods=['GET'])
-@require_admin
 def get_testimonials():
     """Get all testimonials"""
     try:
@@ -377,12 +412,26 @@ def create_testimonial():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
+@admin_bp.route('/section/testimonials/<int:id>', methods=['GET'])
+def get_testimonial(id):
+    """Get a single testimonial"""
+    try:
+        testimonial = db.session.get(Testimonial, id)
+        if not testimonial:
+            return jsonify({"success": False, "message": "Testimonial not found"}), 404
+
+        return jsonify({"success": True, "data": testimonial.to_dict()}), 200
+    except Exception as e:
+        if logger: logger.error(f"Error getting testimonial: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 @admin_bp.route('/section/testimonials/<int:id>', methods=['PUT'])
 @require_admin
 def update_testimonial(id):
     """Update testimonial"""
     try:
-        testimonial = Testimonial.query.get(id)
+        testimonial = db.session.get(Testimonial, id)
         if not testimonial:
             return jsonify({"success": False, "message": "Testimonial not found"}), 404
         
@@ -410,7 +459,7 @@ def update_testimonial(id):
 def delete_testimonial(id):
     """Delete testimonial"""
     try:
-        testimonial = Testimonial.query.get(id)
+        testimonial = db.session.get(Testimonial, id)
         if not testimonial:
             return jsonify({"success": False, "message": "Testimonial not found"}), 404
         
@@ -428,7 +477,6 @@ def delete_testimonial(id):
 # ========================================
 
 @admin_bp.route('/section/contact', methods=['GET'])
-@require_admin
 def get_contact_section():
     """Get Contact section content"""
     try:
@@ -495,7 +543,6 @@ def update_contact_section():
 # ========================================
 
 @admin_bp.route('/section/footer', methods=['GET'])
-@require_admin
 def get_footer_section():
     """Get Footer section content"""
     try:
@@ -569,7 +616,6 @@ def update_footer_section():
 # ========================================
 
 @admin_bp.route('/section/stats', methods=['GET'])
-@require_admin
 def get_stats_section():
     """Get Stats section content"""
     try:
@@ -638,7 +684,6 @@ def update_stats_section():
 # ========================================
 
 @admin_bp.route('/section/features', methods=['GET'])
-@require_admin
 def get_features_section():
     """Get Features section content"""
     try:
@@ -705,7 +750,6 @@ def update_features_section():
 # ========================================
 
 @admin_bp.route('/section/justdial', methods=['GET'])
-@require_admin
 def get_justdial_section():
     """Get JustDial section content"""
     try:
@@ -761,6 +805,135 @@ def update_justdial_section():
     except Exception as e:
         db.session.rollback()
         if logger: logger.error(f"Error updating justdial section: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+# ========================================
+# ABOUT SECTION MANAGEMENT
+# ========================================
+
+@admin_bp.route('/section/about', methods=['GET'])
+def get_about_section():
+    """Get About section content"""
+    try:
+        content = WebsiteContent.query.filter_by(section_name='about').all()
+        data = {c.content_key: c.content_value for c in content}
+        
+        defaults = {
+            'title': 'About Ansh Air Cool',
+            'description': 'We are Mumbai\'s trusted AC service provider with over 10 years of experience',
+            'mission': 'To provide reliable, affordable, and professional AC services to every household',
+            'image': '',
+            'highlights': json.dumps([
+                {'icon': 'fas fa-award', 'text': '10+ Years Experience'},
+                {'icon': 'fas fa-users', 'text': '1000+ Happy Customers'},
+                {'icon': 'fas fa-tools', 'text': '5000+ Services Completed'},
+                {'icon': 'fas fa-shield-alt', 'text': '90-Day Warranty'}
+            ])
+        }
+        
+        for key, value in defaults.items():
+            if key not in data:
+                data[key] = value
+        
+        return jsonify({"success": True, "data": data}), 200
+    except Exception as e:
+        if logger: logger.error(f"Error getting about section: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@admin_bp.route('/section/about', methods=['PUT'])
+@require_admin
+def update_about_section():
+    """Update About section content"""
+    try:
+        data = request.get_json()
+        
+        fields = ['title', 'description', 'mission', 'image', 'highlights']
+        
+        for field in fields:
+            if field in data:
+                content = WebsiteContent.query.filter_by(
+                    section_name='about', content_key=field
+                ).first()
+                
+                if content:
+                    content.content_value = data[field]
+                else:
+                    content = WebsiteContent(
+                        section_name='about',
+                        content_key=field,
+                        content_value=data[field],
+                        content_type='json' if field == 'highlights' else 'text'
+                    )
+                    db.session.add(content)
+        
+        db.session.commit()
+        return jsonify({"success": True, "message": "About section updated"}), 200
+    except Exception as e:
+        db.session.rollback()
+        if logger: logger.error(f"Error updating about section: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+# ========================================
+# QUICK QUOTE SECTION MANAGEMENT
+# ========================================
+
+@admin_bp.route('/section/quick-quote', methods=['GET'])
+def get_quick_quote_section():
+    """Get Quick Quote section content"""
+    try:
+        content = WebsiteContent.query.filter_by(section_name='quick-quote').all()
+        data = {c.content_key: c.content_value for c in content}
+        
+        defaults = {
+            'title': 'Get a Quick Quote',
+            'subtitle': 'Tell us your requirements and we\'ll get back to you within 30 minutes',
+            'show_section': 'true'
+        }
+        
+        for key, value in defaults.items():
+            if key not in data:
+                data[key] = value
+        
+        return jsonify({"success": True, "data": data}), 200
+    except Exception as e:
+        if logger: logger.error(f"Error getting quick-quote section: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@admin_bp.route('/section/quick-quote', methods=['PUT'])
+@require_admin
+def update_quick_quote_section():
+    """Update Quick Quote section content"""
+    try:
+        data = request.get_json()
+        
+        fields = ['title', 'subtitle', 'show_section']
+        
+        for field in fields:
+            if field in data:
+                content = WebsiteContent.query.filter_by(
+                    section_name='quick-quote', content_key=field
+                ).first()
+                
+                if content:
+                    content.content_value = data[field]
+                else:
+                    content = WebsiteContent(
+                        section_name='quick-quote',
+                        content_key=field,
+                        content_value=data[field],
+                        content_type='text'
+                    )
+                    db.session.add(content)
+        
+        db.session.commit()
+        return jsonify({"success": True, "message": "Quick Quote section updated"}), 200
+    except Exception as e:
+        db.session.rollback()
+        if logger: logger.error(f"Error updating quick-quote section: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
 
 
@@ -872,6 +1045,94 @@ def upload_image():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
+@admin_bp.route('/gallery', methods=['GET'])
+@require_admin
+def get_gallery():
+    """Gallery endpoint alias used by the admin frontend."""
+    try:
+        category = request.args.get('category', 'all')
+        query = GalleryImage.query.filter_by(is_active=True)
+
+        if category != 'all':
+            query = query.filter_by(category=category)
+
+        images = query.order_by(GalleryImage.created_at.desc()).all()
+        return jsonify({"success": True, "data": [img.to_dict() for img in images]}), 200
+    except Exception as e:
+        if logger: logger.error(f"Error getting gallery: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@admin_bp.route('/gallery', methods=['POST'])
+@require_admin
+@limiter.limit("20 per minute")
+def create_gallery_image():
+    """Upload gallery image endpoint alias used by the admin frontend."""
+    try:
+        if 'image' not in request.files:
+            return jsonify({"success": False, "message": "No image provided"}), 400
+
+        file = request.files['image']
+        category = request.form.get('category', 'gallery')
+        alt_text = request.form.get('alt_text', '')
+
+        if file.filename == '':
+            return jsonify({"success": False, "message": "No file selected"}), 400
+
+        uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+        optimizer = get_image_optimizer(uploads_dir)
+        result = optimizer.process_upload(file, category=category)
+
+        if not result['success']:
+            return jsonify({
+                "success": False,
+                "message": result.get('error', 'Image processing failed')
+            }), 400
+
+        image = GalleryImage(
+            image_path=result.get('filepath', ''),
+            image_url=result['url'],
+            category=category,
+            alt_text=alt_text,
+            file_size=result.get('optimized_size', result.get('original_size', 0)),
+            mime_type=file.content_type
+        )
+        db.session.add(image)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Image uploaded successfully",
+            "data": image.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        if logger: logger.error(f"Error creating gallery image: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@admin_bp.route('/gallery/<int:id>', methods=['DELETE'])
+@require_admin
+def delete_gallery(id):
+    """Delete gallery image endpoint alias used by the admin frontend."""
+    try:
+        image = db.session.get(GalleryImage, id)
+        if not image:
+            return jsonify({"success": False, "message": "Image not found"}), 404
+
+        if image.image_path and os.path.exists(image.image_path):
+            os.remove(image.image_path)
+
+        image.is_active = False
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "Image deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        if logger: logger.error(f"Error deleting gallery image: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 # ========================================
 # ADMIN PROFILE & PASSWORD MANAGEMENT
 # ========================================
@@ -882,7 +1143,7 @@ def get_admin_profile():
     """Get current admin profile"""
     try:
         admin_id = session.get('admin_id')
-        admin = Admin.query.get(admin_id)
+        admin = db.session.get(Admin, admin_id)
         
         if not admin:
             return jsonify({"success": False, "message": "Admin not found"}), 404
@@ -908,22 +1169,50 @@ def get_admin_profile():
 @admin_bp.route('/profile', methods=['PUT'])
 @require_admin
 def update_admin_profile():
-    """Update admin profile (name, email, phone)"""
+    """Update admin profile with secure username change"""
     try:
         admin_id = session.get('admin_id')
-        admin = Admin.query.get(admin_id)
+        admin = db.session.get(Admin, admin_id)
         
         if not admin:
             return jsonify({"success": False, "message": "Admin not found"}), 404
         
-        data = request.get_json()
-        
+        data = request.get_json() or {}
+        current_password = data.get('current_password', '')
+
+        if 'username' in data and data['username'] is not None:
+            new_username = sanitize_input(data['username'], 30).strip().lower()
+            if not new_username:
+                return jsonify({"success": False, "message": "Username cannot be empty"}), 400
+            if not re.match(r'^[a-z0-9._-]{4,30}$', new_username):
+                return jsonify({"success": False, "message": "Username must be 4-30 characters and use only letters, numbers, dot, underscore or hyphen"}), 400
+            if new_username != admin.username:
+                old_username = admin.username
+                if not current_password:
+                    return jsonify({"success": False, "message": "Current password is required to change username"}), 400
+                if not admin.check_password(current_password):
+                    log_security_event('FAILED_USERNAME_CHANGE', {'admin_id': admin_id})
+                    return jsonify({"success": False, "message": "Current password is incorrect"}), 401
+                existing = Admin.query.filter_by(username=new_username).first()
+                if existing:
+                    return jsonify({"success": False, "message": "Username already taken"}), 400
+                admin.username = new_username
+                log_security_event('USERNAME_CHANGED', {
+                    'admin_id': admin_id,
+                    'old_username': old_username,
+                    'new_username': new_username
+                })
+
         if 'full_name' in data:
-            admin.full_name = data['full_name'].strip()
+            admin.full_name = sanitize_input(data['full_name'], 100).strip()
         if 'email' in data:
+            from security import validate_email
+            is_valid, error_msg = validate_email(data['email'])
+            if not is_valid:
+                return jsonify({"success": False, "message": error_msg or "Invalid email"}), 400
             admin.email = data['email'].strip().lower()
         if 'phone' in data:
-            admin.phone = data['phone'].strip()
+            admin.phone = sanitize_input(data['phone'], 20).strip()
         
         db.session.commit()
         
@@ -949,12 +1238,12 @@ def change_admin_password():
     """Change admin password"""
     try:
         admin_id = session.get('admin_id')
-        admin = Admin.query.get(admin_id)
+        admin = db.session.get(Admin, admin_id)
         
         if not admin:
             return jsonify({"success": False, "message": "Admin not found"}), 404
         
-        data = request.get_json()
+        data = request.get_json() or {}
         current_password = data.get('current_password', '')
         new_password = data.get('new_password', '')
         confirm_password = data.get('confirm_password', '')
@@ -966,8 +1255,14 @@ def change_admin_password():
         if not new_password:
             return jsonify({"success": False, "message": "New password is required"}), 400
         
-        if len(new_password) < 6:
-            return jsonify({"success": False, "message": "New password must be at least 6 characters"}), 400
+        if len(new_password) < 10:
+            return jsonify({"success": False, "message": "New password must be at least 10 characters"}), 400
+        
+        # Validate password strength
+        from security import validate_password_strength
+        is_valid, error_msg = validate_password_strength(new_password)
+        if not is_valid:
+            return jsonify({"success": False, "message": error_msg}), 400
         
         if new_password != confirm_password:
             return jsonify({"success": False, "message": "New passwords do not match"}), 400
@@ -976,7 +1271,10 @@ def change_admin_password():
         if not admin.check_password(current_password):
             log_security_event('FAILED_PASSWORD_CHANGE', {'admin_id': admin_id})
             return jsonify({"success": False, "message": "Current password is incorrect"}), 401
-        
+
+        if current_password == new_password:
+            return jsonify({"success": False, "message": "New password must be different from current password"}), 400
+
         # Set new password
         admin.set_password(new_password)
         db.session.commit()

@@ -42,11 +42,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (typeof AOS !== 'undefined') {
             AOS.init({
                 duration: 1200,
-                once: false,
+                once: true,
                 offset: 120,
                 delay: 0,
                 easing: 'ease-out-cubic',
-                mirror: true,
+                mirror: false,
                 anchorPlacement: 'top-bottom'
             });
         }
@@ -229,7 +229,7 @@ function initProductAndServiceButtons() {
     
     // Service buttons
     document.addEventListener('click', function(e) {
-        const serviceBtn = e.target.closest('.service-btn');
+        const serviceBtn = e.target.closest('.service-btn, .hero-service-chips a[data-service]');
         if (serviceBtn) {
             const serviceType = serviceBtn.dataset.service;
             const contactSection = document.querySelector('#contact');

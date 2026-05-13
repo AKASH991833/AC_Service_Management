@@ -272,13 +272,11 @@ section.py-5.my-5 {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     overflow: hidden;
-    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .service-card:hover {
-    transform: translateY(-8px);
     border-color: rgba(255, 129, 255, 0.4);
-    box-shadow: 0 20px 50px rgba(171, 125, 227, 0.2), 0 0 0 1px rgba(255,129,255,0.15);
+    box-shadow: 0 10px 30px rgba(171, 125, 227, 0.1);
 }
 
 /* Service image — fixed aspect ratio */
@@ -294,11 +292,6 @@ section.py-5.my-5 {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.service-card:hover .service-image-wrapper img {
-    transform: scale(1.05);
 }
 
 /* Service content area */
@@ -314,14 +307,14 @@ section.py-5.my-5 {
     width: 52px;
     height: 52px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
-    color: #fff;
+    color: var(--text-white);
     margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(255,129,255,0.3);
+    box-shadow: 0 4px 15px var(--shadow-pink);
     flex-shrink: 0;
 }
 
@@ -349,7 +342,7 @@ section.py-5.my-5 {
 .price-amount {
     font-size: 1.4rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -357,7 +350,7 @@ section.py-5.my-5 {
 
 .service-duration {
     font-size: 0.82rem;
-    color: rgba(255,255,255,0.5);
+    color: var(--text-muted);
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -365,7 +358,7 @@ section.py-5.my-5 {
 }
 
 .service-duration i {
-    color: #00F5FF;
+    color: var(--success-accent);
     font-size: 0.78rem;
 }
 
@@ -379,7 +372,7 @@ section.py-5.my-5 {
 
 .service-features-list li {
     font-size: 0.875rem;
-    color: rgba(255,255,255,0.75);
+    color: var(--text-light);
     padding: 0.28rem 0;
     display: flex;
     align-items: center;
@@ -387,7 +380,7 @@ section.py-5.my-5 {
 }
 
 .service-features-list li i {
-    color: #51FAAA;
+    color: var(--success-accent);
     font-size: 0.78rem;
     flex-shrink: 0;
 }
@@ -400,19 +393,19 @@ section.py-5.my-5 {
     padding: 11px 20px;
     font-size: 0.9rem;
     font-weight: 600;
-    border-radius: 50px;
-    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
-    color: #fff !important;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    color: var(--text-white) !important;
     text-decoration: none;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255,129,255,0.25);
+    box-shadow: 0 4px 15px var(--shadow-pink);
     margin-top: auto;
 }
 
 .service-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255,129,255,0.45);
-    color: #fff !important;
+    box-shadow: 0 8px 25px var(--shadow-pink);
+    color: var(--text-white) !important;
 }
 
 /* "View All Services" button */
@@ -423,19 +416,19 @@ section.py-5.my-5 {
     padding: 14px 40px;
     font-size: 1rem;
     font-weight: 600;
-    border: 2px solid rgba(255,129,255,0.5);
-    color: #fff !important;
+    border: 2px solid var(--border-accent);
+    color: var(--text-white) !important;
     background: rgba(255,129,255,0.08);
-    border-radius: 50px;
+    border-radius: var(--radius-full);
     transition: all 0.3s ease;
     margin-top: 1rem;
 }
 
 #view-more-services:hover {
     background: rgba(255,129,255,0.18);
-    border-color: #FF81FF;
+    border-color: var(--primary-glow);
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(255,129,255,0.3);
+    box-shadow: 0 10px 30px var(--shadow-pink);
 }
 
 /* Service feature pills (top of section) */
@@ -451,18 +444,18 @@ section.py-5.my-5 {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: var(--glass-bg);
+    border: 1px solid var(--border-medium);
     border-radius: 50px;
     padding: 0.45rem 1.1rem;
     font-size: 0.85rem;
     font-weight: 500;
-    color: rgba(255,255,255,0.85);
+    color: var(--text-light);
     white-space: nowrap;
 }
 
 .service-feature-item i {
-    color: #51FAAA;
+    color: var(--success-accent);
     font-size: 0.85rem;
 }
 
@@ -498,16 +491,16 @@ section.py-5.my-5 {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
-    color: #fff;
+    background: var(--gradient-primary);
+    color: var(--text-white);
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.35rem 0.9rem;
-    border-radius: 50px;
+    border-radius: var(--radius-full);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     z-index: 2;
-    box-shadow: 0 4px 12px rgba(255,129,255,0.4);
+    box-shadow: 0 4px 12px var(--shadow-pink);
 }
 
 /* Product image */
@@ -674,14 +667,14 @@ section.py-5.my-5 {
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(255,129,255,0.4);
+    background: var(--gradient-primary);
+    color: var(--text-white);
+    box-shadow: 0 4px 15px var(--shadow-pink);
 }
 
 .tab-btn:hover:not(.active) {
-    color: #fff;
-    background: rgba(255,255,255,0.1);
+    color: var(--text-white);
+    background: var(--glass-bg);
 }
 
 /* ==============================================================
@@ -814,24 +807,26 @@ section.py-5.my-5 {
 }
 
 /* Icons inside inputs */
-.input-wrapper {
-    position: relative;
-}
-
 .input-icon {
     position: absolute;
-    left: 0.85rem;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255,255,255,0.4);
-    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9rem;
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
+    transition: color 0.3s ease;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Textarea icon fix (top-aligned) */
 .input-wrapper textarea ~ .input-icon {
-    top: 1rem;
+    top: 12px;
     transform: none;
 }
 
@@ -986,14 +981,14 @@ section.py-5.my-5 {
 
 .footer-section {
     background: rgba(8, 9, 18, 0.98);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--border-light);
     padding: 4rem 0 2rem;
 }
 
 .footer-section h3 {
     font-size: 1.3rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #FF81FF, #00F5FF);
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1004,13 +999,13 @@ section.py-5.my-5 {
 }
 
 .footer-section h3 i {
-    -webkit-text-fill-color: #FF81FF;
+    -webkit-text-fill-color: var(--primary-glow);
 }
 
 .footer-section h4 {
     font-size: 0.9rem;
     font-weight: 700;
-    color: rgba(255,255,255,0.9);
+    color: var(--text-light);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 1.25rem;
@@ -1018,7 +1013,7 @@ section.py-5.my-5 {
 
 .footer-section .description {
     font-size: 0.88rem;
-    color: rgba(255,255,255,0.55);
+    color: var(--text-muted);
     line-height: 1.7;
     margin-bottom: 1.25rem;
 }
@@ -1037,20 +1032,20 @@ section.py-5.my-5 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.6);
+    background: var(--glass-bg);
+    border: 1px solid var(--border-medium);
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.3s ease;
 }
 
 .social-icons a:hover {
-    background: linear-gradient(135deg, #FF81FF, #AB7DE3);
+    background: var(--gradient-primary);
     border-color: transparent;
-    color: #fff;
+    color: var(--text-white);
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(255,129,255,0.35);
+    box-shadow: 0 8px 20px var(--shadow-pink);
 }
 
 /* Footer links */
@@ -1062,7 +1057,7 @@ section.py-5.my-5 {
 
 .footer-links a {
     font-size: 0.88rem;
-    color: rgba(255,255,255,0.55);
+    color: var(--text-muted);
     text-decoration: none;
     transition: all 0.2s ease;
     display: inline-flex;
@@ -1072,14 +1067,14 @@ section.py-5.my-5 {
 }
 
 .footer-links a:hover {
-    color: #FF81FF;
+    color: var(--primary-glow);
     transform: translateX(4px);
 }
 
 .footer-links a::before {
     content: '→';
     font-size: 0.75rem;
-    color: #FF81FF;
+    color: var(--primary-glow);
     opacity: 0;
     transition: opacity 0.2s ease;
 }
@@ -1091,7 +1086,7 @@ section.py-5.my-5 {
 /* Footer contact */
 .footer-contact {
     font-size: 0.88rem;
-    color: rgba(255,255,255,0.6);
+    color: var(--text-muted);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1099,25 +1094,25 @@ section.py-5.my-5 {
 }
 
 .footer-contact i {
-    color: #FF81FF;
+    color: var(--primary-glow);
     font-size: 0.85rem;
     width: 16px;
     flex-shrink: 0;
 }
 
 .footer-divider {
-    border-color: rgba(255,255,255,0.08);
+    border-color: var(--border-light);
     margin: 2rem 0 1.5rem;
 }
 
 .footer-copyright {
     text-align: center;
     font-size: 0.82rem;
-    color: rgba(255,255,255,0.35);
+    color: var(--text-subtle);
 }
 
 .footer-copyright .heart {
-    color: #FF4D6D;
+    color: var(--primary-glow);
     animation: heartbeat 1.5s ease-in-out infinite;
 }
 

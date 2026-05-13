@@ -164,14 +164,15 @@ class MetricCard(QFrame):
 class DetailViewDialog(QDialog):
     """Detailed view dialog for each metric with search/filter"""
     
-    def __init__(self, parent, metric_type, data):
+    def __init__(self, parent, metric_type, data, period='this_week'):
         super().__init__(parent)
         self.metric_type = metric_type
         self.data = data
+        self.period = period  # Store current dashboard period
         self.theme_manager = UnifiedTheme()
         self.colors = self.theme_manager.get_colors()
         
-        self.setWindowTitle(f"{metric_type} - Detailed View")
+        self.setWindowTitle(f"{metric_type} - Detailed View ({period.replace('_', ' ').title()})")
         self.setMinimumSize(1200, 700)
         self.resize(1400, 800)
         
@@ -395,24 +396,83 @@ class DetailViewDialog(QDialog):
         self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
 
         self.all_data = services
-        self.status_label.setText(f"Total Services: {len(services)} (showing latest 100)")
+        self.status_label.setText(f"Total Services: {len(services)} ({self.period.replace('_', ' ').title()})")
+        
+    def _get_date_range(self):
+        """Calculate date range based on period"""
+        today = datetime.now().date()
+        
+        if self.period == 'today':
+            return today, today
+        elif self.period == 'this_week':
+            start = today - timedelta(days=today.weekday())  # Monday
+            return start, today
+        elif self.period == 'this_month':
+            start = today.replace(day=1)
+            return start, today
+        else:  # this_year
+            start = today.replace(month=1, day=1)
+            return start, today
+        
+    def _load_services(self):
+        """Load service/invoice data filtered by period"""
+        from database.db_connection import DatabaseContext
+        
+        start_date, end_date = self._get_date_range()
+        
+        with DatabaseContext() as db:
+            query = """
+                SELECT i.id, i.invoice_number, c.name as customer_name,
+                       s.service_name, i.total_amount, i.created_at
+                FROM invoices i
+                JOIN customers c ON i.customer_id = c.id
+                JOIN invoice_items ii ON i.id = ii.invoice_id
+                JOIN services s ON ii.service_id = s.id
+                WHERE i.is_active = TRUE AND DATE(i.created_at) BETWEEN %s AND %s
+                ORDER BY i.created_at DESC
+                LIMIT 100
+            """
+            services = db.execute_query(query, (start_date, end_date), fetch_all=True)
+
+        self.table.setColumnCount(6)
+        self.table.setHorizontalHeaderLabels(['ID', 'Invoice No', 'Customer', 'Service', 'Amount', 'Date'])
+        self.table.setRowCount(len(services))
+
+        for row, service in enumerate(services):
+            self.table.setItem(row, 0, QTableWidgetItem(str(service['id'])))
+            self.table.setItem(row, 1, QTableWidgetItem(service['invoice_number'] or 'N/A'))
+            self.table.setItem(row, 2, QTableWidgetItem(service['customer_name'] or 'N/A'))
+            self.table.setItem(row, 3, QTableWidgetItem(service['service_name'] or 'N/A'))
+            self.table.setItem(row, 4, QTableWidgetItem(f"₹{service['total_amount']:,.2f}"))
+            date_str = service['created_at'].strftime('%d-%m-%Y %H:%M') if service['created_at'] else 'N/A'
+            self.table.setItem(row, 5, QTableWidgetItem(date_str))
+
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+
+        self.all_data = services
+        self.status_label.setText(f"Total Services: {len(services)} ({self.period.replace('_', ' ').title()})")
         
     def _load_revenue(self):
-        """Load revenue/invoice data"""
+        """Load revenue/invoice data filtered by period"""
         from database.db_connection import DatabaseContext
+        
+        start_date, end_date = self._get_date_range()
         
         with DatabaseContext() as db:
             query = """
                 SELECT i.invoice_number, c.name as customer_name,
-                       i.total_amount, i.paid_amount, i.balance_amount,
+                       i.total_amount, i.advance_payment, i.balance_amount,
                        i.created_at, i.payment_status
                 FROM invoices i
                 JOIN customers c ON i.customer_id = c.id
-                WHERE i.is_active = TRUE
+                WHERE i.is_active = TRUE AND DATE(i.created_at) BETWEEN %s AND %s
                 ORDER BY i.created_at DESC
                 LIMIT 100
             """
-            revenues = db.execute_query(query, fetch_all=True)
+            revenues = db.execute_query(query, (start_date, end_date), fetch_all=True)
 
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(['Invoice No', 'Customer', 'Total Amount', 'Paid', 'Balance', 'Status', 'Date'])
@@ -422,7 +482,7 @@ class DetailViewDialog(QDialog):
             self.table.setItem(row, 0, QTableWidgetItem(rev['invoice_number'] or 'N/A'))
             self.table.setItem(row, 1, QTableWidgetItem(rev['customer_name'] or 'N/A'))
             self.table.setItem(row, 2, QTableWidgetItem(f"₹{rev['total_amount']:,.2f}"))
-            self.table.setItem(row, 3, QTableWidgetItem(f"₹{rev['paid_amount']:,.2f}"))
+            self.table.setItem(row, 3, QTableWidgetItem(f"₹{rev['advance_payment']:,.2f}"))
             self.table.setItem(row, 4, QTableWidgetItem(f"₹{rev['balance_amount']:,.2f}"))
             status = rev['payment_status'] or 'Pending'
             self.table.setItem(row, 5, QTableWidgetItem(status))
@@ -434,7 +494,7 @@ class DetailViewDialog(QDialog):
 
         self.all_data = revenues
         total_revenue = sum(r['total_amount'] for r in revenues)
-        self.status_label.setText(f"Total Revenue: ₹{total_revenue:,.2f} | Records: {len(revenues)}")
+        self.status_label.setText(f"Total Revenue: ₹{total_revenue:,.2f} | Records: {len(revenues)} ({self.period.replace('_', ' ').title()})")
 
     def _load_amc(self):
         """Load AMC contract data"""
@@ -480,8 +540,10 @@ class DetailViewDialog(QDialog):
         self.status_label.setText(f"Active AMC Contracts: {active_count} | Total: {len(amc_data)}")
 
     def _load_online_requests(self):
-        """Load online requests from website"""
+        """Load online requests from website filtered by period"""
         from database.db_connection import DatabaseContext
+        
+        start_date, end_date = self._get_date_range()
 
         # Combine contact messages and service requests
         with DatabaseContext() as db:
@@ -489,14 +551,16 @@ class DetailViewDialog(QDialog):
                 SELECT 'Contact' as type, id, name, phone as mobile,
                        service_type, created_at, status
                 FROM contact_messages
+                WHERE DATE(created_at) BETWEEN %s AND %s
                 UNION ALL
                 SELECT 'Service' as type, id, customer_name as name, customer_phone as mobile,
                        service_type, created_at, request_status as status
                 FROM service_requests
+                WHERE DATE(created_at) BETWEEN %s AND %s
                 ORDER BY created_at DESC
                 LIMIT 100
             """
-            requests = db.execute_query(query, fetch_all=True)
+            requests = db.execute_query(query, (start_date, end_date, start_date, end_date), fetch_all=True)
 
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(['Type', 'ID', 'Name', 'Mobile', 'Service Type', 'Status', 'Date'])
@@ -521,8 +585,10 @@ class DetailViewDialog(QDialog):
         self.status_label.setText(f"Total Requests: {len(requests)} | Unread/Pending: {unread}")
         
     def _load_todays_services(self):
-        """Load today's services"""
+        """Load services filtered by period"""
         from database.db_connection import DatabaseContext
+        
+        start_date, end_date = self._get_date_range()
         
         with DatabaseContext() as db:
             query = """
@@ -534,10 +600,10 @@ class DetailViewDialog(QDialog):
                 JOIN invoice_items ii ON i.id = ii.invoice_id
                 JOIN services s ON ii.service_id = s.id
                 LEFT JOIN technicians t ON i.technician_id = t.id
-                WHERE i.is_active = TRUE AND DATE(i.created_at) = CURDATE()
+                WHERE i.is_active = TRUE AND DATE(i.created_at) BETWEEN %s AND %s
                 ORDER BY i.created_at DESC
             """
-            services = db.execute_query(query, fetch_all=True)
+            services = db.execute_query(query, (start_date, end_date), fetch_all=True)
 
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(['ID', 'Invoice No', 'Customer', 'Service', 'Technician', 'Amount', 'Time'])
@@ -560,7 +626,8 @@ class DetailViewDialog(QDialog):
 
         self.all_data = services
         total_amount = sum(s['total_amount'] for s in services)
-        self.status_label.setText(f"Today's Services: {len(services)} | Revenue: ₹{total_amount:,.2f}")
+        period_label = self.period.replace('_', ' ').title()
+        self.status_label.setText(f"Services ({period_label}): {len(services)} | Revenue: ₹{total_amount:,.2f}")
 
     def filter_data(self, search_text):
         """Filter table data based on search text"""
@@ -697,7 +764,7 @@ class DetailViewDialog(QDialog):
         from database.db_connection import DatabaseContext
         with DatabaseContext() as db:
             query = """
-                SELECT i.invoice_number, c.name, i.total_amount, i.paid_amount, 
+                SELECT i.invoice_number, c.name, i.total_amount, i.advance_payment, 
                        i.balance_amount, i.payment_status, i.created_at
                 FROM invoices i
                 JOIN customers c ON i.customer_id = c.id
@@ -712,7 +779,7 @@ class DetailViewDialog(QDialog):
 <b>📝 Invoice No:</b> {invoice['invoice_number']}
 <b>👤 Customer:</b> {invoice['name']}
 <b>💵 Total Amount:</b> ₹{invoice['total_amount']:,.0f}
-<b>💰 Paid:</b> ₹{invoice['paid_amount']:,.0f}
+<b>💰 Paid:</b> ₹{invoice['advance_payment']:,.0f}
 <b>⏳ Balance:</b> ₹{invoice['balance_amount']:,.0f}
 <b>📊 Status:</b> {invoice['payment_status']}
 <b>📅 Date:</b> {invoice['created_at'].strftime('%d-%m-%Y') if invoice['created_at'] else 'N/A'}
@@ -847,18 +914,37 @@ class DetailViewDialog(QDialog):
 class EnhancedDashboardView(BaseView):
     """Enhanced professional dashboard with clickable cards and detailed views"""
 
-    def __init__(self, user_data):
+    def __init__(self, user_data, db, controller):
         super().__init__()
         self.user_data = user_data
+        self.db = db
+        self.controller = controller
         self.theme_manager = UnifiedTheme()
-        self.period = 'today'
+        self.period = 'this_week'  # Default: This Week
         self.metric_labels = {}
         self.metric_cards = {}
         self.loaded_data = {}
+        self.last_online_count = 0
+        self.last_pending_count = 0
+        self.last_invoice_count = 0
+        self.last_revenue_count = 0
 
         self._setup_ui()
         self.load_dashboard_data()
         QTimer.singleShot(500, self.load_analytics_data)
+        
+        # Auto-refresh timer for real-time updates
+        self.auto_refresh_timer = QTimer()
+        self.auto_refresh_timer.timeout.connect(self._auto_refresh_check)
+        self.auto_refresh_timer.start(15000)  # Refresh every 15 seconds
+
+    def cleanup(self):
+        """Cleanup timers when view is closed"""
+        try:
+            if hasattr(self, 'auto_refresh_timer'):
+                self.auto_refresh_timer.stop()
+        except Exception as e:
+            print(f"[WARN] Dashboard cleanup failed: {e}")
 
     def update_theme_colors(self):
         """Update theme colors for proper dark theme support"""
@@ -916,6 +1002,53 @@ class EnhancedDashboardView(BaseView):
         
         self.load_dashboard_data()
         self.load_analytics_data()
+
+    def _auto_refresh_check(self):
+        """Auto-refresh check for new online requests AND periodic dashboard refresh"""
+        try:
+            stats = self.controller.get_dashboard_stats(self.period)
+            if stats:
+                current_online = stats.get('online_requests', 0)
+                current_invoices = stats.get('total_invoices', 0)
+                current_revenue = stats.get('total_revenue', 0)
+                
+                # Check for new online requests
+                if current_online > self.last_online_count and self.last_online_count > 0:
+                    new_count = current_online - self.last_online_count
+                    self.show_new_request_notification(new_count)
+                
+                # Check for new invoices/revenue changes
+                if (current_invoices != self.last_invoice_count or 
+                    current_revenue != self.last_revenue_count):
+                    print(f"[AUTO-REFRESH] Data changed - refreshing dashboard")
+                    self.refresh_data()
+                    return  # Don't update counters again, refresh_data will handle it
+                
+                # Update last counts
+                self.last_online_count = current_online
+                self.last_invoice_count = current_invoices
+                self.last_revenue_count = current_revenue
+                
+        except Exception as e:
+            print(f"[ERROR] Dashboard auto-refresh check failed: {e}")
+
+    def show_new_request_notification(self, count):
+        """Show notification for new requests"""
+        try:
+            # Play notification sound
+            import winsound
+            winsound.PlaySound("SystemNotification", winsound.SND_ALIAS | winsound.SND_ASYNC)
+        except Exception as e:
+            print(f"[INFO] Sound play failed: {e}")
+        
+        # Update greeting label to show notification
+        for widget in self.findChildren(QLabel):
+            if widget.text().startswith("Good") and "!" in widget.text():
+                current_text = widget.text()
+                widget.setText(f"{current_text} 🔔 {count} new request{'s' if count > 1 else ''}!")
+                # Reset after 5 seconds
+                QTimer.singleShot(5000, lambda: widget.setText(widget.text().split(' 🔔')[0] + "!"))
+                break
 
     def _setup_ui(self):
         """Setup enhanced dashboard UI - No scroll, compact layout"""
@@ -995,7 +1128,7 @@ class EnhancedDashboardView(BaseView):
         # Modern period combo
         self.period_combo = QComboBox()
         self.period_combo.addItems(['Today', 'This Week', 'This Month', 'This Year'])
-        self.period_combo.setCurrentIndex(0)
+        self.period_combo.setCurrentIndex(1)  # Default: This Week
         self.period_combo.setMinimumWidth(140)
         self.period_combo.setMaximumWidth(160)
         self.period_combo.setStyleSheet(f"""
@@ -1654,8 +1787,8 @@ class EnhancedDashboardView(BaseView):
             self._navigate_to_amc()
             return
 
-        # Create and show detail dialog for other metrics
-        dialog = DetailViewDialog(self, metric_name, metric_data)
+        # Create and show detail dialog for other metrics (pass current period)
+        dialog = DetailViewDialog(self, metric_name, metric_data, self.period)
         dialog.exec_()
     
     def _navigate_to_amc(self):
@@ -1813,6 +1946,11 @@ class EnhancedDashboardView(BaseView):
         """Update UI with loaded data"""
         # Store data for detail views
         self.loaded_data = data
+
+        # Initialize auto-refresh counters
+        self.last_online_count = data.get('online_requests', 0)
+        self.last_invoice_count = data.get('total_services', 0)
+        self.last_revenue_count = data.get('total_revenue', 0)
 
         # Update date range
         self.date_range_label.setText(f"({data['range_text']})")

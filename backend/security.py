@@ -9,7 +9,7 @@ import re
 import os
 import logging
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import request, jsonify, session, make_response
 import bcrypt
 
@@ -70,8 +70,8 @@ def verify_password_secure(password, password_hash):
     try:
         return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
     except Exception:
-        # Constant time comparison to prevent timing attacks
-        bcrypt.checkpw(b'dummy', b'$2b$12$dummyhash')
+        # Use constant-time dummy comparison to prevent timing attacks
+        secrets.compare_digest(password.encode('utf-8'), b'dummy_password_hash_check')
         return False
 
 
@@ -258,96 +258,34 @@ locked_accounts = {}
 def track_login_attempt(username, ip_address, success=False):
     """
     Track login attempts for brute force protection
-    
-    Args:
-        username: Username attempted
-        ip_address: IP address of attempt
-        success: Whether login was successful
-    
-    Returns:
-        dict: Status with is_locked and remaining_attempts
+    Locks account after 5 failed attempts within 15 minutes
     """
-    from datetime import datetime, timedelta
-    
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     key = f"{username}:{ip_address}"
     
-    # TEMPORARILY DISABLED FOR TESTING - Account lock feature
-    # Check if account is locked
-    if False and username in locked_accounts:  # LOCK DISABLED
-        lock_info = locked_accounts[username]
-        if now < lock_info['locked_until']:
-            remaining_lock = int((lock_info['locked_until'] - now).total_seconds())
-            return {
-                'is_locked': True,
-                'remaining_seconds': remaining_lock,
-                'message': f'Account temporarily locked. Try again in {remaining_lock} seconds'
-            }
-        else:
-            # Lock expired, remove it
-            del locked_accounts[username]
-    
     if success:
-        # Clear attempts on successful login
-        if key in login_attempts:
-            del login_attempts[key]
+        login_attempts.pop(key, None)
         return {'is_locked': False, 'remaining_attempts': 5}
     
-    # Track failed attempt
     if key not in login_attempts:
-        login_attempts[key] = {
-            'attempts': [],
-            'last_attempt': now
-        }
+        login_attempts[key] = {'count': 0, 'first_attempt': now}
     
-    attempt_data = login_attempts[key]
-    attempt_data['attempts'].append(now)
-    attempt_data['last_attempt'] = now
+    login_attempts[key]['count'] += 1
+    attempts = login_attempts[key]
     
-    # Clean old attempts (older than 30 minutes)
-    window_start = now - timedelta(minutes=30)
-    attempt_data['attempts'] = [t for t in attempt_data['attempts'] if t > window_start]
+    # Reset if window expired
+    if now - attempts['first_attempt'] > timedelta(minutes=15):
+        attempts['count'] = 1
+        attempts['first_attempt'] = now
+        return {'is_locked': False, 'remaining_attempts': 4}
     
-    # Check if lockout threshold reached (5 failed attempts)
-    # TEMPORARILY DISABLED FOR TESTING
-    if False and len(attempt_data['attempts']) >= 5:  # LOCK DISABLED
-        # Lock for 15 minutes
-        lock_duration = timedelta(minutes=15)
-        locked_accounts[username] = {
-            'locked_until': now + lock_duration,
-            'reason': 'multiple_failed_attempts',
-            'ip': ip_address
-        }
-
-        # Log security event
-        log_security_event('ACCOUNT_LOCKED', {
-            'username': username,
-            'ip': ip_address,
-            'failed_attempts': len(attempt_data['attempts'])
-        })
-
-        return {
-            'is_locked': True,
-            'remaining_seconds': 900,  # 15 minutes
-            'message': 'Account locked due to multiple failed attempts. Try again in 15 minutes.'
-        }
+    remaining = max(0, 5 - attempts['count'])
     
-    remaining_attempts = 5 - len(attempt_data['attempts'])
+    if attempts['count'] >= 5:
+        locked_accounts[key] = now
+        return {'is_locked': True, 'remaining_attempts': 0}
     
-    # Log warning if approaching lockout
-    if remaining_attempts <= 2:
-        log_security_event('MULTIPLE_FAILED_LOGINS', {
-            'username': username,
-            'ip': ip_address,
-            'failed_attempts': len(attempt_data['attempts']),
-            'remaining_attempts': remaining_attempts
-        })
-    
-    return {
-        'is_locked': False,
-        'remaining_attempts': remaining_attempts,
-        'warning': f'Warning: {remaining_attempts} attempts remaining before lockout' if remaining_attempts <= 2 else None
-    }
+    return {'is_locked': False, 'remaining_attempts': remaining}
 
 
 def get_client_ip():
@@ -364,36 +302,37 @@ rate_limit_storage = {}
 def check_rate_limit(identifier, max_attempts=5, window_minutes=15):
     """
     Check if identifier has exceeded rate limit
-    Returns: (is_allowed, remaining_attempts, reset_time)
+    Returns: (allowed, remaining, reset_seconds)
     """
-    now = datetime.now()
-    key = f"{identifier}"
+    now = datetime.now(timezone.utc)
     
-    if key not in rate_limit_storage:
-        rate_limit_storage[key] = {'attempts': [], 'blocked_until': None}
+    if identifier in locked_accounts:
+        lock_time = locked_accounts[identifier]
+        if now - lock_time < timedelta(minutes=15):
+            reset_sec = int((timedelta(minutes=15) - (now - lock_time)).total_seconds())
+            return False, 0, reset_sec
+        else:
+            del locked_accounts[identifier]
+            login_attempts.pop(identifier, None)
     
-    data = rate_limit_storage[key]
+    if identifier not in rate_limit_storage:
+        rate_limit_storage[identifier] = {'count': 0, 'first_attempt': now}
     
-    # Check if currently blocked
-    if data['blocked_until'] and now < data['blocked_until']:
-        remaining = int((data['blocked_until'] - now).total_seconds())
-        return False, 0, remaining
+    entry = rate_limit_storage[identifier]
     
-    # Clear old attempts
-    window_start = now - timedelta(minutes=window_minutes)
-    data['attempts'] = [t for t in data['attempts'] if t > window_start]
+    if now - entry['first_attempt'] > timedelta(minutes=window_minutes):
+        entry['count'] = 0
+        entry['first_attempt'] = now
     
-    # Check if limit exceeded
-    if len(data['attempts']) >= max_attempts:
-        # Block for 1 hour
-        data['blocked_until'] = now + timedelta(hours=1)
-        return False, 0, 3600
+    entry['count'] += 1
+    remaining = max(0, max_attempts - entry['count'])
+    reset_sec = int((timedelta(minutes=window_minutes) - (now - entry['first_attempt'])).total_seconds())
     
-    # Record this attempt
-    data['attempts'].append(now)
-    remaining = max_attempts - len(data['attempts'])
+    if entry['count'] > max_attempts:
+        locked_accounts[identifier] = now
+        return False, 0, reset_sec
     
-    return True, remaining, 0
+    return True, remaining, reset_sec
 
 
 def rate_limit_exceeded_handler(error):
@@ -432,11 +371,12 @@ def add_security_headers(response):
     # Content Security Policy (restrictive)
     csp_policy = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://cdn.datatables.net; "
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://cdn.datatables.net; "
-        "font-src 'self' https://cdn.jsdelivr.net data:; "
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://cdn.datatables.net https://cdnjs.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://cdn.datatables.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+        "font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; "
         "img-src 'self' data: https: blob:; "
-        "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000; "
+        "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 http://localhost:5500 http://127.0.0.1:5500 http://localhost:8000 http://127.0.0.1:8000; "
+        "frame-src 'self' https://www.google.com https://maps.google.com; "
         "frame-ancestors 'none'; "
         "base-uri 'self'; "
         "form-action 'self'; "
@@ -469,6 +409,21 @@ def add_security_headers(response):
 # FILE UPLOAD SECURITY (100% Secure)
 # ========================================
 
+def check_image_type(file):
+    """Check image type using magic bytes (replaces deprecated imghdr)"""
+    header = file.read(12)
+    file.seek(0)
+    if header[:3] == b'\xff\xd8\xff':
+        return 'jpeg'
+    if header[:4] == b'\x89PNG\r\n\x1a\n':
+        return 'png'
+    if header[:4] == b'GIF8':
+        return 'gif'
+    if header[:4] == b'RIFF' and header[8:12] == b'WEBP':
+        return 'webp'
+    return None
+
+
 def validate_file_upload(file, max_size_mb=5):
     """
     Comprehensive file upload validation
@@ -497,9 +452,8 @@ def validate_file_upload(file, max_size_mb=5):
         return False, "Empty file", None
     
     # Check magic numbers (actual file type)
-    import imghdr
     file.seek(0)
-    file_type = imghdr.what(file)
+    file_type = check_image_type(file)
     
     if not file_type:
         return False, "Invalid image file or corrupted", None
@@ -526,7 +480,7 @@ def validate_file_upload(file, max_size_mb=5):
 def log_security_event(event_type, details=None):
     """Log all security-related events with full details"""
     log_data = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "event_type": event_type,
         "ip_address": get_client_ip(),
         "user_agent": request.headers.get('User-Agent', '')[:500],
@@ -554,7 +508,7 @@ def log_security_event(event_type, details=None):
 def secure_session():
     """Apply maximum security settings to current session"""
     session.permanent = True
-    session['created_at'] = datetime.utcnow().isoformat()
+    session['created_at'] = datetime.now(timezone.utc).isoformat()
     session['ip_address'] = get_client_ip()
     session['user_agent_hash'] = hashlib.sha256(
         request.headers.get('User-Agent', '').encode()
@@ -572,7 +526,7 @@ def validate_session():
     if created_at:
         try:
             created_time = datetime.fromisoformat(created_at)
-            if datetime.utcnow() - created_time > timedelta(hours=24):
+            if datetime.now(timezone.utc) - created_time > timedelta(hours=24):
                 logger.warning(f"Session expired for admin_id: {session.get('admin_id')}")
                 return False
         except:
@@ -596,51 +550,63 @@ def regenerate_session():
 # ========================================
 
 def require_admin_enhanced(f):
-    """Enhanced admin authentication with maximum security"""
+    """Enhanced admin authentication with maximum security - supports session tokens for CORS"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Check if admin is logged in
-        admin_id = session.get('admin_id')
-        if not admin_id:
+        # Check for session token in header (for CORS cross-origin requests)
+        session_token = request.headers.get('X-Session-Token')
+        
+        if session_token:
+            # Authenticate via token
+            from models import db, Admin
+            admin = Admin.query.filter_by(session_token=session_token).first()
+            
+            if not admin or not admin.is_active:
+                log_security_event('UNAUTHORIZED_ACCESS', {
+                    'endpoint': request.endpoint,
+                    'ip': get_client_ip(),
+                    'path': request.path,
+                    'method': 'token'
+                })
+                return jsonify({
+                    "success": False,
+                    "message": "Invalid session token. Please login again."
+                }), 401
+            
+            # Set session for this request
+            session['admin_id'] = admin.id
+            session['admin_username'] = admin.username
+        elif 'admin_id' not in session:
             log_security_event('UNAUTHORIZED_ACCESS', {
                 'endpoint': request.endpoint,
+                'ip': get_client_ip(),
                 'path': request.path
             })
-            response = make_response(jsonify({
+            return jsonify({
                 "success": False,
-                "message": "Unauthorized - Please login"
-            }), 401)
-            return add_security_headers(response)
-        
-        # Validate session
-        if not validate_session():
-            logger.warning(f"Session validation failed for admin_id: {admin_id}")
-            session.pop('admin_id', None)
-            log_security_event('SESSION_INVALID', {'admin_id': admin_id})
-            response = make_response(jsonify({
-                "success": False,
-                "message": "Session expired - Please login again"
-            }), 401)
-            return add_security_headers(response)
-        
-        # Check if admin is active
-        from models import Admin
-        admin = Admin.query.get(admin_id)
+                "message": "Authentication required. Please login."
+            }), 401
+
+        admin_id = session.get('admin_id')
+        from models import db, Admin
+        admin = db.session.get(Admin, admin_id)
+
         if not admin or not admin.is_active:
-            session.pop('admin_id', None)
-            log_security_event('INACTIVE_ADMIN_LOGIN', {'admin_id': admin_id})
-            response = make_response(jsonify({
+            session.clear()
+            log_security_event('UNAUTHORIZED_ACCESS', {
+                'admin_id': admin_id,
+                'endpoint': request.endpoint,
+                'ip': get_client_ip(),
+                'reason': 'Admin not found or deactivated'
+            })
+            return jsonify({
                 "success": False,
-                "message": "Account deactivated"
-            }), 401)
-            return add_security_headers(response)
-        
-        # Execute the function
+                "message": "Invalid or deactivated admin session"
+            }), 401
+
         response = make_response(f(*args, **kwargs))
-        
-        # Add security headers
         return add_security_headers(response)
-    
+
     return decorated_function
 
 
