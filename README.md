@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 # 🌟 ANSH AIR COOL - AC Service Management System
 
 > **Complete Business Solution for AC Service & Installation**  
-> 📍 Mumbai, Maharashtra, India | 📞 +91 9819104977
+> 📍 Mumbai, Maharashtra, India
 
 ---
 
@@ -146,7 +145,7 @@ python init_database_complete.py
 
 This creates:
 - All database tables
-- Admin user (username: `admin`, password: `Admin@123`)
+- Admin user (change any default credentials before deployment)
 - Default services
 - Website content
 
@@ -176,9 +175,7 @@ cd Desktop_software
 python main.py
 ```
 
-Login with:
-- Username: `admin`
-- Password: `Admin@123`
+Login with the admin credentials configured for your own deployment. Change any default credentials before use.
 
 ---
 
@@ -386,8 +383,7 @@ python -c "from main import create_app; app = create_app()"
 4. Test: `mysql -u root -p`
 
 ### Admin login fails
-- Username: `admin`
-- Password: `Admin@123`
+- Verify your configured admin credentials
 - Clear browser cache
 - Run `python init_database_complete.py` again
 
@@ -411,7 +407,6 @@ pip install -r requirements.txt
 
 **Ansh Air Cool**  
 📍 Mumbai, Maharashtra, India  
-📞 +91 9819104977  
 📧 anshaircool@gmail.com  
 
 ---
@@ -440,6 +435,3 @@ Unauthorized copying or distribution is prohibited.
 [🔝 Back to Top](#ansh-air-cool---ac-service-management-system)
 
 </div>
-=======
-# AC_Service_Management
->>>>>>> 680adf1d7e11e72af4c9a5f778b1f7c3fb485e9f
